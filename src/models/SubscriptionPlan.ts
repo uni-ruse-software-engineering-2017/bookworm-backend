@@ -12,7 +12,7 @@ export default class SubscriptionPlan extends Model<SubscriptionPlan> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column
   name: string;

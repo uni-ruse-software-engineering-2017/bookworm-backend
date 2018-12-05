@@ -17,7 +17,7 @@ export default class UserSubscription extends Model<UserSubscription> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Unique
   @Column
@@ -43,7 +43,7 @@ export default class UserSubscription extends Model<UserSubscription> {
 
   @ForeignKey(() => ApplicationUser)
   @Column({ field: "user_id", type: DataType.BIGINT })
-  userId: number;
+  userid: string;
 
   /**
    * Foreign key - Subscription Plan
@@ -53,5 +53,5 @@ export default class UserSubscription extends Model<UserSubscription> {
 
   @ForeignKey(() => SubscriptionPlan)
   @Column({ field: "subscription_plan_id", type: DataType.BIGINT })
-  subscriptionPlanId: number;
+  subscriptionPlanid: string;
 }

@@ -16,7 +16,7 @@ export default class ApplicationUser extends Model<ApplicationUser> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Unique
   @Column

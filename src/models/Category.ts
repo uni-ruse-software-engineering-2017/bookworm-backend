@@ -17,7 +17,7 @@ export default class Category extends Model<Category> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column
   name: string;
@@ -30,7 +30,7 @@ export default class Category extends Model<Category> {
 
   @AllowNull
   @Column({ field: "parent_id", type: DataType.BIGINT })
-  parentId: number;
+  parentid: string;
 
   @BelongsTo(() => Category, "parent_id")
   parent: Category;

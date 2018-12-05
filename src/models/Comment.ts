@@ -18,7 +18,7 @@ export default class Comment extends Model<Comment> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column(DataType.TEXT)
   content: string;
@@ -37,7 +37,7 @@ export default class Comment extends Model<Comment> {
 
   @ForeignKey(() => Book)
   @Column({ field: "book_id", type: DataType.BIGINT })
-  bookId: number;
+  bookid: string;
 
   /**
    * Foreign key - User
@@ -47,5 +47,5 @@ export default class Comment extends Model<Comment> {
 
   @ForeignKey(() => ApplicationUser)
   @Column({ field: "user_id", type: DataType.BIGINT })
-  userId: number;
+  userid: string;
 }

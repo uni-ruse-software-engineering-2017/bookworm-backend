@@ -26,7 +26,7 @@ export default class Book extends Model<Book> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column
   title: string;
@@ -76,7 +76,7 @@ export default class Book extends Model<Book> {
 
   @ForeignKey(() => Author)
   @Column({ field: "author_id", type: DataType.BIGINT })
-  authorId: number;
+  authorid: string;
 
   /**
    * Foreign key - Category
@@ -86,7 +86,7 @@ export default class Book extends Model<Book> {
 
   @ForeignKey(() => Category)
   @Column({ field: "category_id", type: DataType.BIGINT })
-  categoryId: number;
+  categoryid: string;
 
   @HasMany(() => Comment)
   comments: Comment[];

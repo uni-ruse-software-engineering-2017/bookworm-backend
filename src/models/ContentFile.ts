@@ -16,7 +16,7 @@ export default class ContentFile extends Model<ContentFile> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column(DataType.STRING(255))
   name: string;
@@ -39,5 +39,5 @@ export default class ContentFile extends Model<ContentFile> {
 
   @ForeignKey(() => Book)
   @Column(DataType.BIGINT)
-  bookId: number;
+  bookid: string;
 }

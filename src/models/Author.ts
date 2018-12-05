@@ -16,7 +16,7 @@ export default class Author extends Model<Author> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column
   name: string;

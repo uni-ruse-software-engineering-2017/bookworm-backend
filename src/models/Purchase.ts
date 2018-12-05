@@ -19,7 +19,7 @@ export default class Purchase extends Model<Purchase> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
-  id: number;
+  id: string;
 
   @Column
   paymentMethod: string;
@@ -45,7 +45,7 @@ export default class Purchase extends Model<Purchase> {
 
   @ForeignKey(() => ApplicationUser)
   @Column({ field: "user_id", type: DataType.BIGINT })
-  userId: number;
+  userid: string;
 
   @BelongsToMany(() => Book, () => BookPurchase)
   books: Book[];

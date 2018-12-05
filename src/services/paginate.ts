@@ -1,3 +1,4 @@
+import * as Boom from "boom";
 import { WhereOptions } from "sequelize";
 import { Model } from "sequelize-typescript";
 
@@ -23,12 +24,18 @@ export default async function paginate<T extends Model<T>>(
 
   const pageCount = Math.ceil(result.count / pageSize) || 1;
   const items = result.rows as T[];
+  const itemsCount = items.length;
+
+  if (itemsCount === 0 && page > 1) {
+    throw Boom.badRequest(`Page ${page} has no results to be shown.`);
+  }
 
   return {
     pageCount,
     page,
     pageSize,
     items,
+    itemsCount,
     total: result.count
   };
 }

@@ -1,13 +1,14 @@
 import * as Boom from "boom";
 import * as HttpStatus from "http-status-codes";
 import * as Router from "koa-router";
+import paginationMiddleware from "../../middleware/pagination.middleware";
 import Author from "../../models/Author";
 import authorService, { IAuthor } from "./author.service";
 
 const AuthorController = new Router();
 
-AuthorController.get("/", async ctx => {
-  const authors = await authorService.getAll();
+AuthorController.get("/", paginationMiddleware, async ctx => {
+  const authors = await authorService.getAll(ctx.state.pagination);
   ctx.body = authors || [];
   return ctx;
 });

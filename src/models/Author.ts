@@ -4,6 +4,7 @@ import {
   CreatedAt,
   DataType,
   HasMany,
+  IsDate,
   Model,
   PrimaryKey,
   Table,
@@ -24,6 +25,7 @@ export default class Author extends Model<Author> {
   @Column(DataType.TEXT)
   biography: string;
 
+  @IsDate
   @Column({ field: "birth_date" })
   birthDate: Date;
 

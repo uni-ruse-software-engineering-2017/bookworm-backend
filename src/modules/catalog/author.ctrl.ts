@@ -9,7 +9,7 @@ const AuthorController = new Router();
 
 AuthorController.get("/", paginationMiddleware, async ctx => {
   const authors = await authorService.getAll(ctx.state.pagination);
-  ctx.body = authors || [];
+  ctx.body = authors;
   return ctx;
 });
 
@@ -18,8 +18,7 @@ AuthorController.get("/:id", async ctx => {
   const author = await authorService.getById(id);
 
   if (!author) {
-    return ctx.throw(404, Boom.notFound(`Author with ID ${id} was not found.`));
-    // throw Boom.notFound(`Author with ID ${id} was not found.`);
+    return ctx.throw(Boom.notFound(`Author with ID ${id} was not found.`));
   } else {
     ctx.body = author;
     return ctx;
@@ -44,13 +43,25 @@ AuthorController.post("/", async ctx => {
 });
 
 AuthorController.patch("/:id", async ctx => {
-  ctx.body = {};
+  const id = ctx.params.id as string;
+  const authorData = ctx.request.body as Partial<IAuthor>;
+
+  const updatedAuthor = await authorService.edit(id, authorData);
+
+  ctx.body = updatedAuthor;
   return ctx;
 });
 
 AuthorController.delete("/:id", async ctx => {
-  ctx.body = {};
-  ctx.status = HttpStatus.NO_CONTENT;
+  const removed = await authorService.remove(ctx.params.id);
+
+  if (!removed) {
+    return ctx.throw(
+      Boom.notFound(`Author with ID ${ctx.params.id} was not found.`)
+    );
+  }
+
+  ctx.body = removed;
   return ctx;
 });
 

@@ -60,6 +60,7 @@
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.12",
     "sequelize": "^4.41.0",
-    "sequelize-typescript": "^0.6.6"
+    "sequelize-typescript": "^0.6.6",
+    "uuid": "^3.3.2"
   }
 }

@@ -7,7 +7,8 @@ const database = new Sequelize({
   password: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT, 10),
-  modelPaths: [__dirname + "./../models"]
+  modelPaths: [__dirname + "./../models"],
+  operatorsAliases: false
 });
 
 export default database;

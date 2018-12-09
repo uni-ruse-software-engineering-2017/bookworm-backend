@@ -17,8 +17,13 @@ app.use(async (ctx, next) => {
     const statusCode = error.output.statusCode || 500;
 
     ctx.status = statusCode;
-    ctx.body = error.output.payload;
+    let errorBody = error.output.payload;
 
+    if (error.data) {
+      errorBody = Object.assign({}, errorBody, { detail: error.data });
+    }
+
+    ctx.body = errorBody;
     return ctx;
   }
 });

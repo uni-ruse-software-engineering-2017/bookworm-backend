@@ -6,6 +6,7 @@ export interface IPaginationQuery<T> {
   page?: number;
   pageSize?: number;
   where?: WhereOptions<T>;
+  scope?: string;
 }
 
 export default async function paginate<T extends Model<T>>(
@@ -15,8 +16,10 @@ export default async function paginate<T extends Model<T>>(
   pagination.pageSize = pagination.pageSize > 0 ? pagination.pageSize : 25;
   pagination.page = pagination.page > 0 ? pagination.page : 1;
 
-  const { pageSize, page, where } = pagination;
-  const result = await DBModel["findAndCountAll"]({
+  const { pageSize, page, where, scope } = pagination;
+  const result = await DBModel[scope ? "scope" : "unscoped"](scope)[
+    "findAndCountAll"
+  ]({
     where: where || {},
     limit: pageSize,
     offset: (page - 1) * pageSize

@@ -5,13 +5,20 @@ import {
   Column,
   CreatedAt,
   DataType,
-  HasMany,
+  ForeignKey,
   Model,
   PrimaryKey,
+  Scopes,
   Table,
+  Unique,
   UpdatedAt
 } from "sequelize-typescript";
 
+@Scopes({
+  full: {
+    include: [() => Category]
+  }
+})
 @Table({ tableName: "category" })
 export default class Category extends Model<Category> {
   @PrimaryKey
@@ -22,6 +29,10 @@ export default class Category extends Model<Category> {
   @Column
   name: string;
 
+  @Unique
+  @Column({ field: "seo_url", type: DataType.STRING })
+  seoUrl: string;
+
   @CreatedAt
   createdAt: Date;
 
@@ -29,12 +40,18 @@ export default class Category extends Model<Category> {
   updatedAt: Date;
 
   @AllowNull
+  @ForeignKey(() => Category)
   @Column({ field: "parent_id", type: DataType.BIGINT })
-  parentid: string;
+  parentId: string;
 
-  @BelongsTo(() => Category, "parent_id")
+  @BelongsTo(() => Category, "parentId")
   parent: Category;
 
-  @HasMany(() => Category, "parent_id")
-  children: Category[];
+  static async children(categoryId: string) {
+    return Category.findAll({
+      where: {
+        parentId: categoryId
+      }
+    });
+  }
 }

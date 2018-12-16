@@ -54,4 +54,19 @@ CategoryController.patch("/:id", async ctx => {
   return ctx;
 });
 
+CategoryController.delete("/:id", async ctx => {
+  const id = ctx.params.id as string;
+  const category = await categoryService.getById(id);
+
+  if (!category) {
+    return ctx.throw(notFound(`Category with ID ${id} was not found.`));
+  }
+
+  await categoryService.remove(id);
+
+  ctx.body = category;
+
+  return ctx;
+});
+
 export default CategoryController;

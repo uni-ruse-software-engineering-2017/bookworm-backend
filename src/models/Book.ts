@@ -9,10 +9,14 @@ import {
   Default,
   ForeignKey,
   HasMany,
+  IsDate,
+  IsNumeric,
   IsUrl,
+  Length,
   Model,
   PrimaryKey,
   Table,
+  Unique,
   UpdatedAt
 } from "sequelize-typescript";
 import Author from "./Author";
@@ -28,12 +32,31 @@ export default class Book extends Model<Book> {
   @Column(DataType.BIGINT)
   id: string;
 
+  @Unique
+  @AllowNull(false)
+  @Length({ min: 1 })
   @Column
   title: string;
 
+  @Unique
+  @Length({ min: 10, max: 13 })
+  @Column({ type: DataType.STRING })
+  get isbn(): string {
+    return this.getDataValue("isbn");
+  }
+
+  set isbn(value: string) {
+    value = value || "";
+    value = value.replace(/[\s\-]+/g, "");
+    this.setDataValue("isbn", value);
+  }
+
+  @AllowNull(false)
+  @IsNumeric
   @Column(DataType.SMALLINT)
   pages: number;
 
+  @IsDate
   @Column({ field: "date_published", type: DataType.DATEONLY })
   datePublished: Date;
 
@@ -63,9 +86,11 @@ export default class Book extends Model<Book> {
   featured: boolean;
 
   @CreatedAt
+  @Column({ field: "created_at" })
   createdAt: Date;
 
   @UpdatedAt
+  @Column({ field: "updated_at" })
   updatedAt: Date;
 
   /**
@@ -74,9 +99,10 @@ export default class Book extends Model<Book> {
   @BelongsTo(() => Author)
   author: Author;
 
+  @AllowNull(false)
   @ForeignKey(() => Author)
   @Column({ field: "author_id", type: DataType.BIGINT })
-  authorid: string;
+  authorId: string;
 
   /**
    * Foreign key - Category
@@ -84,9 +110,10 @@ export default class Book extends Model<Book> {
   @BelongsTo(() => Category)
   category: Category;
 
+  @AllowNull(false)
   @ForeignKey(() => Category)
   @Column({ field: "category_id", type: DataType.BIGINT })
-  categoryid: string;
+  categoryId: string;
 
   @HasMany(() => Comment)
   comments: Comment[];

@@ -24,9 +24,11 @@ export default class Comment extends Model<Comment> {
   content: string;
 
   @CreatedAt
+  @Column({ field: "created_at" })
   createdAt: Date;
 
   @UpdatedAt
+  @Column({ field: "updated_at" })
   updatedAt: Date;
 
   /**
@@ -37,7 +39,7 @@ export default class Comment extends Model<Comment> {
 
   @ForeignKey(() => Book)
   @Column({ field: "book_id", type: DataType.BIGINT })
-  bookid: string;
+  bookId: string;
 
   /**
    * Foreign key - User
@@ -47,5 +49,5 @@ export default class Comment extends Model<Comment> {
 
   @ForeignKey(() => ApplicationUser)
   @Column({ field: "user_id", type: DataType.BIGINT })
-  userid: string;
+  userId: string;
 }

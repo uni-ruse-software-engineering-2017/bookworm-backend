@@ -31,13 +31,13 @@ export default class ContentFile extends Model<ContentFile> {
   @Column({ field: "size_in_bytes", type: DataType.INTEGER })
   sizeInBytes: number;
 
-  @Column(DataType.BOOLEAN)
+  @Column({ field: "is_preview", type: DataType.BOOLEAN })
   isPreview: boolean;
 
   @BelongsTo(() => Book)
   book: Book;
 
   @ForeignKey(() => Book)
-  @Column(DataType.BIGINT)
-  bookid: string;
+  @Column({ field: "book_id", type: DataType.BIGINT })
+  bookId: string;
 }

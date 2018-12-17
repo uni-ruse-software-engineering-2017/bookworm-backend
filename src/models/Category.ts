@@ -34,9 +34,11 @@ export default class Category extends Model<Category> {
   seoUrl: string;
 
   @CreatedAt
+  @Column({ field: "created_at" })
   createdAt: Date;
 
   @UpdatedAt
+  @Column({ field: "updated_at" })
   updatedAt: Date;
 
   @AllowNull

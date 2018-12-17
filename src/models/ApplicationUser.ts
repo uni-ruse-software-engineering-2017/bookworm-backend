@@ -57,9 +57,11 @@ export default class ApplicationUser extends Model<ApplicationUser> {
   passwordResetTokenExpiresAt: Date;
 
   @CreatedAt
+  @Column({ field: "created_at" })
   createdAt: Date;
 
   @UpdatedAt
+  @Column({ field: "updated_at" })
   updatedAt: Date;
 
   async comparePasswords(candidatePassword: string = "") {

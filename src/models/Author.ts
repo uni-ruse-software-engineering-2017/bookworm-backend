@@ -30,10 +30,12 @@ export default class Author extends Model<Author> {
   birthDate: Date;
 
   @CreatedAt
-  creationDate: Date;
+  @Column({ field: "created_at" })
+  createdAt: Date;
 
   @UpdatedAt
-  updatedOn: Date;
+  @Column({ field: "updated_at" })
+  updatedAt: Date;
 
   @HasMany(() => Book)
   books: Book[];

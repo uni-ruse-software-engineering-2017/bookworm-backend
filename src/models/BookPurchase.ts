@@ -19,7 +19,7 @@ export default class BookPurchase extends Model<BookPurchase> {
   @Column(DataType.BIGINT)
   id: string;
 
-  @Column
+  @Column({ field: "payment_method" })
   paymentMethod: string;
 
   @Column({ field: "placed_at", type: DataType.DATE })

@@ -29,10 +29,10 @@ export default class UserSubscription extends Model<UserSubscription> {
   @Column({ field: "expires_at", type: DataType.DATE })
   expiresAt: Date;
 
-  @Column(DataType.SMALLINT)
+  @Column({ field: "books_per_month", type: DataType.SMALLINT })
   booksPerMonth: number;
 
-  @Column(DataType.DECIMAL.UNSIGNED)
+  @Column({ field: "price_per_month", type: DataType.DECIMAL.UNSIGNED })
   pricePerMonth: number;
 
   /**
@@ -43,7 +43,7 @@ export default class UserSubscription extends Model<UserSubscription> {
 
   @ForeignKey(() => ApplicationUser)
   @Column({ field: "user_id", type: DataType.BIGINT })
-  userid: string;
+  userId: string;
 
   /**
    * Foreign key - Subscription Plan
@@ -53,5 +53,5 @@ export default class UserSubscription extends Model<UserSubscription> {
 
   @ForeignKey(() => SubscriptionPlan)
   @Column({ field: "subscription_plan_id", type: DataType.BIGINT })
-  subscriptionPlanid: string;
+  subscriptionPlanId: string;
 }

@@ -1,13 +1,14 @@
 import { notFound } from "boom";
 import * as HttpStatus from "http-status-codes";
 import * as Router from "koa-router";
-import paginationMiddleware from "../../middleware/pagination.middleware";
+import withPagination from "../../middleware/with-pagination";
+import withRole from "../../middleware/with-role";
 import Category from "../../models/Category";
 import categoryService, { ICategory } from "./category.service";
 
 const CategoryController = new Router();
 
-CategoryController.get("/", paginationMiddleware, async ctx => {
+CategoryController.get("/", withPagination, async ctx => {
   const categories = await categoryService.getAll(ctx.state.pagination);
 
   ctx.body = categories;
@@ -26,7 +27,7 @@ CategoryController.get("/:id", async ctx => {
   }
 });
 
-CategoryController.post("/", async ctx => {
+CategoryController.post("/", withRole("admin"), async ctx => {
   const body = ctx.request.body as ICategory;
   const category = Category.build(body);
   const categoryData = {
@@ -43,7 +44,7 @@ CategoryController.post("/", async ctx => {
   return ctx;
 });
 
-CategoryController.patch("/:id", async ctx => {
+CategoryController.patch("/:id", withRole("admin"), async ctx => {
   const id = ctx.params.id as string;
   const categoryData = ctx.request.body as Partial<ICategory>;
 
@@ -54,7 +55,7 @@ CategoryController.patch("/:id", async ctx => {
   return ctx;
 });
 
-CategoryController.delete("/:id", async ctx => {
+CategoryController.delete("/:id", withRole("admin"), async ctx => {
   const id = ctx.params.id as string;
   const category = await categoryService.getById(id);
 

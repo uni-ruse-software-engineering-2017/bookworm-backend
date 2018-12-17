@@ -1,5 +1,6 @@
 import * as HttpStatus from "http-status-codes";
 import * as Router from "koa-router";
+import withRole from "../../middleware/with-role";
 
 const BookController = new Router();
 
@@ -13,18 +14,18 @@ BookController.get("/:id", async ctx => {
   return ctx;
 });
 
-BookController.post("/", async ctx => {
+BookController.post("/", withRole("admin"), async ctx => {
   ctx.body = {};
   ctx.status = HttpStatus.CREATED;
   return ctx;
 });
 
-BookController.patch("/:id", async ctx => {
+BookController.patch("/:id", withRole("admin"), async ctx => {
   ctx.body = {};
   return ctx;
 });
 
-BookController.delete("/:id", async ctx => {
+BookController.delete("/:id", withRole("admin"), async ctx => {
   ctx.body = {};
   ctx.status = HttpStatus.NO_CONTENT;
   return ctx;

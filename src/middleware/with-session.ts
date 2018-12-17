@@ -4,9 +4,9 @@ import { IJwtData } from "../modules/auth/auth.contracts";
 import { sessionService } from "../services/session";
 import { base64Encode } from "../util/base64";
 
-const sessionMiddleware: Middleware = async (ctx, next) => {
+const withSession: Middleware = async (ctx, next) => {
   const authHeader = (ctx.request.headers["authorization"] as string) || "";
-  ctx.state.session = null;
+  ctx.state.session = undefined;
 
   if (!authHeader.startsWith("Bearer ")) {
     return next();
@@ -26,4 +26,4 @@ const sessionMiddleware: Middleware = async (ctx, next) => {
   }
 };
 
-export default sessionMiddleware;
+export default withSession;

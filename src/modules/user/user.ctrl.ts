@@ -1,17 +1,36 @@
 import * as HttpStatus from "http-status-codes";
 import * as Router from "koa-router";
-import withPagination from "../../middleware/pagination.middleware";
+import withAuthentication from "../../middleware/with-authentication";
+import withPagination from "../../middleware/with-pagination";
+import withRole from "../../middleware/with-role";
+import { IUserProfile } from "./user.contracts";
 import userService, { IApplicationUserData } from "./user.service";
 
 const UserController = new Router();
 
-UserController.get("/", withPagination, async ctx => {
+UserController.use(withAuthentication);
+
+UserController.get("/", withRole("admin"), withPagination, async ctx => {
   const users = await userService.getAll(ctx.state.pagination);
   ctx.body = users;
   return ctx;
 });
 
-UserController.post("/", async ctx => {
+UserController.get("/profile", async ctx => {
+  const profile = ctx.state.session as IUserProfile;
+
+  // exclude confidential data
+  ctx.body = {
+    email: profile.email,
+    firstName: profile.firstName,
+    lastName: profile.lastName,
+    role: profile.role
+  } as Partial<IUserProfile>;
+
+  return ctx;
+});
+
+UserController.post("/", withRole("admin"), async ctx => {
   const userData = ctx.request.body as IApplicationUserData;
   const user = await userService.create(userData);
 

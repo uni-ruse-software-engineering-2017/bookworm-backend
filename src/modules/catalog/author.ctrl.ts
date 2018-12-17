@@ -1,13 +1,14 @@
 import * as Boom from "boom";
 import * as HttpStatus from "http-status-codes";
 import * as Router from "koa-router";
-import paginationMiddleware from "../../middleware/pagination.middleware";
+import withPagination from "../../middleware/with-pagination";
+import withRole from "../../middleware/with-role";
 import Author from "../../models/Author";
 import authorService, { IAuthor } from "./author.service";
 
 const AuthorController = new Router();
 
-AuthorController.get("/", paginationMiddleware, async ctx => {
+AuthorController.get("/", withPagination, async ctx => {
   const authors = await authorService.getAll(ctx.state.pagination);
   ctx.body = authors;
   return ctx;
@@ -25,7 +26,7 @@ AuthorController.get("/:id", async ctx => {
   }
 });
 
-AuthorController.post("/", async ctx => {
+AuthorController.post("/", withRole("admin"), async ctx => {
   const body = ctx.request.body as IAuthor;
   const author = Author.build(body);
   const authorData = {
@@ -42,7 +43,7 @@ AuthorController.post("/", async ctx => {
   return ctx;
 });
 
-AuthorController.patch("/:id", async ctx => {
+AuthorController.patch("/:id", withRole("admin"), async ctx => {
   const id = ctx.params.id as string;
   const authorData = ctx.request.body as Partial<IAuthor>;
 
@@ -52,7 +53,7 @@ AuthorController.patch("/:id", async ctx => {
   return ctx;
 });
 
-AuthorController.delete("/:id", async ctx => {
+AuthorController.delete("/:id", withRole("admin"), async ctx => {
   const removed = await authorService.remove(ctx.params.id);
 
   if (!removed) {

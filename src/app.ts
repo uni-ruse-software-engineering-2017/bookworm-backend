@@ -3,7 +3,7 @@ require("dotenv-override").config({ override: true });
 import { boomify } from "boom";
 import * as Koa from "koa";
 import * as bodyParser from "koa-bodyparser";
-import sessionMiddleware from "./middleware/session.middleware";
+import withSession from "./middleware/with-session";
 import RestAPI from "./rest-api";
 import logger from "./services/logger";
 
@@ -31,7 +31,7 @@ app.use(async (ctx, next) => {
   }
 });
 
-app.use(sessionMiddleware);
+app.use(withSession);
 
 app.use(bodyParser({ enableTypes: ["json"] }));
 

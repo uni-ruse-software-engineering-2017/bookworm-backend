@@ -1,15 +1,7 @@
 import { badData } from "boom";
-import ApplicationUser, { UserRole } from "../../models/ApplicationUser";
+import ApplicationUser from "../../models/ApplicationUser";
 import paginate, { IPaginationQuery } from "../../services/paginate";
-
-export interface IApplicationUserData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-  role: UserRole;
-  active?: boolean;
-}
+import { IApplicationUserData } from "./user.contracts";
 
 class UserService {
   async getByUsername(username = "") {

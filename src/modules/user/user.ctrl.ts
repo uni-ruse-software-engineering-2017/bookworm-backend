@@ -3,8 +3,8 @@ import * as Router from "koa-router";
 import withAuthentication from "../../middleware/with-authentication";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
-import { IUserProfile } from "./user.contracts";
-import userService, { IApplicationUserData } from "./user.service";
+import { IApplicationUserData, IUserProfile } from "./user.contracts";
+import userService from "./user.service";
 
 const UserController = new Router();
 

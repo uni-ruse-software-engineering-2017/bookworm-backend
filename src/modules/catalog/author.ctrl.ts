@@ -4,7 +4,8 @@ import * as Router from "koa-router";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
 import Author from "../../models/Author";
-import authorService, { IAuthor } from "./author.service";
+import authorService from "./author.service";
+import { IAuthor } from "./catalog.contracts";
 
 const AuthorController = new Router();
 

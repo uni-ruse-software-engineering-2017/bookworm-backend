@@ -1,35 +1,14 @@
 require("dotenv-override").config({ override: true });
 
-import { boomify } from "boom";
 import * as Koa from "koa";
 import * as bodyParser from "koa-bodyparser";
+import { errorHandler } from "./middleware/error-handler";
 import withSession from "./middleware/with-session";
 import RestAPI from "./rest-api";
-import logger from "./services/logger";
 
 const app = new Koa();
 
-app.use(async (ctx, next) => {
-  try {
-    await next();
-  } catch (err) {
-    logger.error(err);
-
-    const error = boomify(err);
-    const statusCode = error.output.statusCode || 500;
-
-    ctx.status = statusCode;
-    let errorBody = error.output.payload;
-
-    if (error.data) {
-      errorBody = Object.assign({}, errorBody, { detail: error.data });
-    }
-
-    ctx.body = errorBody;
-
-    return ctx;
-  }
-});
+app.use(errorHandler);
 
 app.use(withSession);
 

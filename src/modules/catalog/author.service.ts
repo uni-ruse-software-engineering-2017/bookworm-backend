@@ -1,15 +1,7 @@
 import { badData, notFound } from "boom";
 import Author from "../../models/Author";
-import Book from "../../models/Book";
 import paginate from "../../services/paginate";
-
-export interface IAuthor {
-  id?: number;
-  name: string;
-  biography: string;
-  birthDate: Date;
-  books?: Book[];
-}
+import { IAuthor } from "./catalog.contracts";
 
 class AuthorService {
   async getAll({ page = 1, pageSize = 25 } = {}) {

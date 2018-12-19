@@ -4,7 +4,8 @@ import * as Router from "koa-router";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
 import Category from "../../models/Category";
-import categoryService, { ICategory } from "./category.service";
+import { ICategory } from "./catalog.contracts";
+import categoryService from "./category.service";
 
 const CategoryController = new Router();
 

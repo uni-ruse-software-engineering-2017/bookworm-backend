@@ -6,3 +6,13 @@ export interface IUserProfile {
   lastName: string;
   role: UserRole;
 }
+
+export interface IApplicationUserData {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  role: UserRole;
+  active?: boolean;
+}

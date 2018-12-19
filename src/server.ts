@@ -7,8 +7,8 @@ const PORT = process.env.PORT || 3000;
 (async () => {
   try {
     await database.authenticate();
-    await database.drop({ cascade: true });
-    await database.sync({ force: true });
+    // await database.drop({ cascade: true });
+    await database.sync({ force: false });
     app.listen(PORT, () => {
       logger.info(`Sever listening on port ${PORT}.`);
     });

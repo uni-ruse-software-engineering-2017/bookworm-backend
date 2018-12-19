@@ -12,3 +12,20 @@ export interface IBook {
   authorId: string;
   categoryId: string;
 }
+
+export interface IAuthor {
+  id?: number;
+  name: string;
+  biography: string;
+  birthDate: Date;
+  books?: IBook[];
+}
+
+export interface ICategory {
+  id?: string;
+  name: string;
+  seoUrl: string;
+  parent?: ICategory | null;
+  parentId?: string | null;
+  children?: ICategory[];
+}

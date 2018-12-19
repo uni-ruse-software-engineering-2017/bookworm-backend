@@ -1,7 +1,7 @@
 import { Redis } from "ioredis";
 import * as ms from "ms";
 import * as uuid from "uuid";
-import { IApplicationUserData } from "../modules/user/user.service";
+import { IApplicationUserData } from "../modules/user/user.contracts";
 import { redisClient } from "./redis-client";
 
 const pkg = require("./../../package.json");

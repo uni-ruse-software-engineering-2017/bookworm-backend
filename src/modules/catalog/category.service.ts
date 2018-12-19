@@ -1,15 +1,7 @@
 import { badData, notFound } from "boom";
 import Category from "../../models/Category";
 import paginate from "../../services/paginate";
-
-export interface ICategory {
-  id?: string;
-  name: string;
-  seoUrl: string;
-  parent?: ICategory | null;
-  parentId?: string | null;
-  children?: ICategory[];
-}
+import { ICategory } from "./catalog.contracts";
 
 class CategoryService {
   async getAll({ page = 1, pageSize = 25 } = {}) {

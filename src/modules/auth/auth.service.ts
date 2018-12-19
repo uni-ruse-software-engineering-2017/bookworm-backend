@@ -1,7 +1,8 @@
 import { badData, unauthorized } from "boom";
 import ApplicationUser from "../../models/ApplicationUser";
 import { sessionService } from "../../services/session";
-import userService, { IApplicationUserData } from "../user/user.service";
+import { IApplicationUserData } from "../user/user.contracts";
+import userService from "../user/user.service";
 import { ILoginCredentials, ISignUpData } from "./auth.contracts";
 
 class AuthService {

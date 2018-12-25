@@ -29,3 +29,22 @@ export interface ICategory {
   parentId?: string | null;
   children?: ICategory[];
 }
+
+export interface IContentFileMetadata {
+  id?: string;
+  name: string;
+  url: string;
+  extension: string;
+  sizeInBytes: number;
+  isPreview: boolean;
+  bookId: string;
+  book?: IBook;
+}
+
+export interface IUploadedFileMetadata {
+  name: string;
+  path: string;
+  size: number;
+  type: string;
+  lastModifiedDate: Date;
+}

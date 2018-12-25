@@ -4,7 +4,6 @@ import {
   Column,
   DataType,
   ForeignKey,
-  IsUrl,
   Model,
   PrimaryKey,
   Table
@@ -21,7 +20,6 @@ export default class ContentFile extends Model<ContentFile> {
   @Column(DataType.STRING(255))
   name: string;
 
-  @IsUrl
   @Column(DataType.STRING(2048))
   url: string;
 

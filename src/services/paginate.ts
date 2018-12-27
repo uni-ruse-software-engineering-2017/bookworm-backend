@@ -7,6 +7,7 @@ export interface IPaginationQuery<T> {
   pageSize?: number;
   where?: WhereOptions<T>;
   scope?: string;
+  include?: any[];
 }
 
 export default async function paginate<T extends Model<T>>(
@@ -16,13 +17,14 @@ export default async function paginate<T extends Model<T>>(
   pagination.pageSize = pagination.pageSize > 0 ? pagination.pageSize : 25;
   pagination.page = pagination.page > 0 ? pagination.page : 1;
 
-  const { pageSize, page, where, scope } = pagination;
+  const { pageSize, page, where, scope, include } = pagination;
   const result = await DBModel[scope ? "scope" : "unscoped"](scope)[
     "findAndCountAll"
   ]({
     where: where || {},
     limit: pageSize,
-    offset: (page - 1) * pageSize
+    offset: (page - 1) * pageSize,
+    include: include || []
   });
 
   const pageCount = Math.ceil(result.count / pageSize) || 1;

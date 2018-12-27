@@ -15,6 +15,7 @@ import {
   Length,
   Model,
   PrimaryKey,
+  Scopes,
   Table,
   Unique,
   UpdatedAt
@@ -25,6 +26,15 @@ import Category from "./Category";
 import Comment from "./Comment";
 import Purchase from "./Purchase";
 
+@Scopes({
+  detailed: {
+    include: [() => Author.scope("listItem"), () => Category]
+  },
+  listItem: {
+    include: [() => Author.scope("listItem"), () => Category],
+    attributes: ["id", "title", "price", "coverImage", "featured", "available"]
+  }
+})
 @Table({ tableName: "book" })
 export default class Book extends Model<Book> {
   @PrimaryKey

@@ -18,7 +18,7 @@ class AuthorService {
   }
 
   async getById(id: string): Promise<Author | null> {
-    const author = await Author.findByPrimary(id);
+    const author = await Author.scope("detailed").findByPrimary(id);
     return author;
   }
 

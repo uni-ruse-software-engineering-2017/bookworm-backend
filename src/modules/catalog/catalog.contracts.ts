@@ -1,5 +1,6 @@
 export interface IBook {
   id?: string;
+  isbn?: string;
   title: string;
   pages: number;
   datePublished: Date;

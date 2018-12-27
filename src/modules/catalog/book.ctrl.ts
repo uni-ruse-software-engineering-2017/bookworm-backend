@@ -2,6 +2,7 @@ import { badData, badImplementation, isBoom } from "boom";
 import * as HttpStatus from "http-status-codes";
 import * as koaBody from "koa-body";
 import * as Router from "koa-router";
+import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
 import bookService from "./book.service";
 import { IBook } from "./catalog.contracts";
@@ -12,8 +13,9 @@ const TEN_MB = 10485760;
 
 const BookController = new Router();
 
-BookController.get("/", async ctx => {
-  ctx.body = [];
+BookController.get("/", withPagination, async ctx => {
+  const books = await bookService.getAll(ctx.state.pagination);
+  ctx.body = books;
   return ctx;
 });
 

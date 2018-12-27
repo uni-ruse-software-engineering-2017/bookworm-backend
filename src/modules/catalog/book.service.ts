@@ -1,14 +1,15 @@
 import { badData, notFound } from "boom";
-import Author from "../../models/Author";
 import Book from "../../models/Book";
-import Category from "../../models/Category";
+import paginate from "../../services/paginate";
 import { IBook } from "./catalog.contracts";
 
 class BookService {
+  async getAll({ page = 1, pageSize = 25 } = {}) {
+    return paginate(Book, { page, pageSize, scope: "listItem" });
+  }
+
   async getById(bookId = "") {
-    const book = await Book.findByPrimary(bookId, {
-      include: [Category, Author]
-    });
+    const book = await Book.scope("detailed").findByPrimary(bookId);
 
     if (!book) {
       throw notFound("Book not found.");

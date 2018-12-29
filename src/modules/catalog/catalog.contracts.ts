@@ -10,8 +10,8 @@ export interface IBook {
   freeDownload: boolean;
   available: boolean;
   featured: boolean;
-  authorId: string;
-  categoryId: string;
+  authorId?: string;
+  categoryId?: string;
 }
 
 export interface IAuthor {
@@ -48,4 +48,27 @@ export interface IUploadedFileMetadata {
   size: number;
   type: string;
   lastModifiedDate: Date;
+}
+
+export interface IGoodreadsAuthorSearchResponse {
+  id: string;
+  name: string;
+  link: string;
+}
+
+export interface IGoodreadsAuthorResponse {
+  id: string;
+  name: string;
+  link: string;
+  large_image_url: string;
+  image_url: string;
+  small_image_url: string;
+  about: string;
+  influences: string;
+  works_count: string;
+  gender: string;
+  hometown: string;
+  born_at: string;
+  died_at: string;
+  goodreads_author: string;
 }

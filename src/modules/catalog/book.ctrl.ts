@@ -68,7 +68,7 @@ BookController.post(
     const file = ctx.request.files.file;
 
     try {
-      const uploadedFile = await fileService.upload(file, book);
+      const uploadedFile = await fileService.upload(file, book as IBook);
 
       const content = await contentService
         .create({

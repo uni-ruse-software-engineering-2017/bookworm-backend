@@ -2,6 +2,7 @@ import httpClient from "../../services/http-client";
 import logger from "../../services/logger";
 import { xmlToJSON } from "../../services/xml-parser";
 import {
+  IAuthor,
   IBook,
   IGoodreadsAuthorResponse,
   IGoodreadsAuthorSearchResponse
@@ -91,7 +92,9 @@ class Goodreads {
     );
 
     const jsonResponse = await this.xmlToObj(response.data);
-    return jsonResponse.author as IGoodreadsAuthorSearchResponse;
+    const goodreadsAuthor = jsonResponse.author as IGoodreadsAuthorSearchResponse;
+
+    return goodreadsAuthor;
   }
 
   async getAuthorById(authorId: string) {
@@ -105,7 +108,21 @@ class Goodreads {
     );
 
     const jsonResponse = await this.xmlToObj(response.data);
-    return jsonResponse.author as IGoodreadsAuthorResponse;
+    const goodreadsAuthor = jsonResponse.author as IGoodreadsAuthorResponse;
+
+    if (!goodreadsAuthor) {
+      return null;
+    }
+
+    const author: IAuthor = {
+      name: goodreadsAuthor.name,
+      biography: goodreadsAuthor.about,
+      bornAt: new Date(goodreadsAuthor.born_at),
+      diedAt: new Date(goodreadsAuthor.died_at),
+      imageUrl: goodreadsAuthor.image_url || goodreadsAuthor.large_image_url
+    };
+
+    return author;
   }
 
   private async xmlToObj(xmlResponse: string) {

@@ -42,8 +42,16 @@ class AuthorService {
       author.biography = data.biography;
     }
 
-    if (data.birthDate) {
-      author.birthDate = data.birthDate;
+    if (typeof data.imageUrl !== "undefined") {
+      author.imageUrl = data.imageUrl;
+    }
+
+    if (data.bornAt) {
+      author.bornAt = data.bornAt;
+    }
+
+    if (typeof data.diedAt !== "undefined") {
+      author.diedAt = data.diedAt;
     }
 
     try {

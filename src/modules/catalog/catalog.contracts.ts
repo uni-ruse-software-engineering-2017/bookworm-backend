@@ -18,7 +18,9 @@ export interface IAuthor {
   id?: number;
   name: string;
   biography: string;
-  birthDate: Date;
+  imageUrl?: string;
+  bornAt: Date;
+  diedAt?: Date;
   books?: IBook[];
 }
 

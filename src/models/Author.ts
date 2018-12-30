@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   AutoIncrement,
   Column,
   CreatedAt,
@@ -40,9 +41,18 @@ export default class Author extends Model<Author> {
   @Column(DataType.TEXT)
   biography: string;
 
+  @AllowNull
+  @Column({ field: "image_url", type: DataType.STRING })
+  imageUrl: string;
+
   @IsDate
-  @Column({ field: "birth_date" })
-  birthDate: Date;
+  @Column({ field: "born_at", type: DataType.DATE })
+  bornAt: Date;
+
+  @AllowNull
+  @IsDate
+  @Column({ field: "died_at", type: DataType.DATE })
+  diedAt: Date;
 
   @CreatedAt
   @Column({ field: "created_at" })

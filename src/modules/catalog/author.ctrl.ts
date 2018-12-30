@@ -32,7 +32,9 @@ AuthorController.post("/", withRole("admin"), async ctx => {
   const author = Author.build(body);
   const authorData = {
     biography: author.biography,
-    birthDate: author.birthDate,
+    bornAt: author.bornAt,
+    diedAt: author.diedAt || null,
+    imageUrl: author.imageUrl || null,
     name: author.name
   } as IAuthor;
 

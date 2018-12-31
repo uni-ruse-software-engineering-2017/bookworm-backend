@@ -1,17 +1,19 @@
-const dbConfig = {
+import { ISequelizeConfig } from "sequelize-typescript";
+
+const dbConfig: { [key: string]: ISequelizeConfig } = {
   test: {
-    username: "root",
+    username: null,
     password: null,
-    database: "bookworm_test",
-    host: "127.0.0.1",
-    dialect: "postgres"
+    database: "test",
+    dialect: "sqlite",
+    logging: false
   },
   production: {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    port: parseInt(process.env.DB_PORT, 10),
     dialect: "postgres"
   }
 };

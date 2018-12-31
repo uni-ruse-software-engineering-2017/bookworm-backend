@@ -1,12 +1,10 @@
-import { Sequelize } from "sequelize-typescript";
+import { ISequelizeConfig, Sequelize } from "sequelize-typescript";
+const dbConfig = require("./../config/db-config");
+
+const conf = dbConfig[process.env.NODE_ENV || "production"] as ISequelizeConfig;
 
 const database = new Sequelize({
-  database: process.env.DB_NAME,
-  dialect: "postgres",
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
+  ...conf,
   modelPaths: [__dirname + "./../models"],
   operatorsAliases: false,
   define: {
@@ -16,3 +14,14 @@ const database = new Sequelize({
 });
 
 export default database;
+
+export function resetDatabase() {
+  const modelsHashMap = database.models;
+  const modelsList = Object.keys(modelsHashMap).map(
+    modelName => modelsHashMap[modelName]
+  );
+
+  return Promise.all(
+    modelsList.map(model => model.destroy({ truncate: true }))
+  );
+}

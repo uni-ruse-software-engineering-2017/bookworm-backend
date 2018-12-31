@@ -13,6 +13,7 @@ export const errorHandler: Middleware = async (ctx, next) => {
     let errorBody = error.output.payload;
 
     logger.error(error);
+
     if (error.data) {
       errorBody = Object.assign({}, errorBody, { detail: error.data });
     }

@@ -2,6 +2,15 @@ import * as Boom from "boom";
 import { WhereOptions } from "sequelize";
 import { Model } from "sequelize-typescript";
 
+export interface IPaginatedResource<T> {
+  pageCount: number;
+  page: number;
+  pageSize: number;
+  items: T[];
+  itemsCount: number;
+  total: number;
+}
+
 export interface IPaginationQuery<T> {
   page?: number;
   pageSize?: number;
@@ -42,5 +51,5 @@ export default async function paginate<T extends Model<T>>(
     items,
     itemsCount,
     total: result.count
-  };
+  } as IPaginatedResource<T>;
 }

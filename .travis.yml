@@ -4,6 +4,9 @@ dist: trusty
 language: node_js
 node_js: 8
 
+services:
+  - redis-server
+
 cache: npm
 
 install:
@@ -12,6 +15,3 @@ install:
 script:
   - npm run build
   - npm test
-
-services:
-  - redis-server

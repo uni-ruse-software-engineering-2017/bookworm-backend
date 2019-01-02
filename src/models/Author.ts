@@ -10,6 +10,7 @@ import {
   PrimaryKey,
   Scopes,
   Table,
+  Unique,
   UpdatedAt
 } from "sequelize-typescript";
 import Book from "./Book";
@@ -35,6 +36,7 @@ export default class Author extends Model<Author> {
   @Column(DataType.BIGINT)
   id: string;
 
+  @Unique
   @Column
   name: string;
 

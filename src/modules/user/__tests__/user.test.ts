@@ -8,9 +8,9 @@ import {
 } from "http-status-codes";
 import "jest-extended";
 import * as supertest from "supertest";
-import app from "../../../app";
-import database, { resetDatabase } from "../../../services/database";
+import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
+import startTestServer from "../../../test-server";
 import { ILoginCredentials } from "../../auth/auth.contracts";
 import { IApplicationUserData, IUserProfile } from "../user.contracts";
 import userService from "../user.service";
@@ -77,14 +77,10 @@ async function generateCustomerToken() {
 }
 
 beforeAll(async done => {
-  app.once("DB_INITIALIZED", async () => {
-    await database.sync({ force: true });
-
-    server = app.listen("6666");
-    request = supertest(server);
-
-    done();
-  });
+  const _ = await startTestServer();
+  server = _.server;
+  request = _.request;
+  done();
 });
 
 beforeEach(async () => {
@@ -92,7 +88,7 @@ beforeEach(async () => {
   adminJwt = await generateAdminToken();
 });
 
-describe("User module", () => {
+describe("User resource", () => {
   describe("GET /user", () => {
     it("should list all users with pagination", async () => {
       await userService.create(testUser);

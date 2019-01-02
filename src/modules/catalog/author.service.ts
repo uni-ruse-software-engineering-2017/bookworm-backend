@@ -13,7 +13,11 @@ class AuthorService {
       const author = await Author.create(authorData);
       return author;
     } catch (error) {
-      throw badData("Validation failed.", error.errors || error);
+      if (error.name === "SequelizeUniqueConstraintError") {
+        throw badData(`Author with name ${authorData.name} already exists.`);
+      } else {
+        throw badData("Validation failed.", error.errors || error);
+      }
     }
   }
 

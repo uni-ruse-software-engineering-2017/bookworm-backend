@@ -27,7 +27,7 @@ export interface IAuthor {
 export interface ICategory {
   id?: string;
   name: string;
-  seoUrl: string;
+  seoUrl?: string;
   parent?: ICategory | null;
   parentId?: string | null;
   children?: ICategory[];

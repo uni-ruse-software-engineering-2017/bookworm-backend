@@ -1,4 +1,5 @@
 import { badData, notFound } from "boom";
+import slugify from "slugify";
 import Category from "../../models/Category";
 import paginate from "../../services/paginate";
 import { ICategory } from "./catalog.contracts";
@@ -10,6 +11,10 @@ class CategoryService {
 
   async create(categoryData: ICategory) {
     try {
+      if (!categoryData.seoUrl) {
+        categoryData.seoUrl = slugify(categoryData.name || "");
+      }
+
       const category = await Category.create(categoryData);
       return category;
     } catch (error) {

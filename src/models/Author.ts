@@ -26,7 +26,7 @@ import Book from "./Book";
     ]
   },
   listItem: {
-    attributes: ["id", "name", "birthDate"]
+    attributes: ["id", "name", "bornAt"]
   }
 })
 @Table({ tableName: "author" })

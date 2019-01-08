@@ -1,5 +1,5 @@
 export interface IBook {
-  id?: string;
+  readonly id?: string;
   isbn?: string;
   title: string;
   pages: number;
@@ -15,7 +15,7 @@ export interface IBook {
 }
 
 export interface IAuthor {
-  id?: string;
+  readonly id?: string;
   name: string;
   biography: string;
   imageUrl?: string;
@@ -25,7 +25,7 @@ export interface IAuthor {
 }
 
 export interface ICategory {
-  id?: string;
+  readonly id?: string;
   name: string;
   seoUrl?: string;
   parent?: ICategory | null;
@@ -34,7 +34,7 @@ export interface ICategory {
 }
 
 export interface IContentFileMetadata {
-  id?: string;
+  readonly id?: string;
   name: string;
   url: string;
   extension: string;

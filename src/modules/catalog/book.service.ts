@@ -24,14 +24,14 @@ class BookService {
     try {
       await bookModel.validate();
     } catch (error) {
-      throw badData("Failed validation", error);
+      throw badData("Validation failed.", error);
     }
 
     try {
       const createdBook = await bookModel.save();
       return this.getById(createdBook.id);
     } catch (error) {
-      throw badData("Failed validation", error);
+      throw badData("Validation failed.", error);
     }
   }
 
@@ -48,7 +48,7 @@ class BookService {
       const updatedBook = await bookToEdit.save();
       return this.getById(updatedBook.id);
     } catch (error) {
-      throw badData("Failed validation", error);
+      throw badData("Validation failed.", error);
     }
   }
 
@@ -59,7 +59,7 @@ class BookService {
       await bookToRemove.destroy();
       return bookToRemove;
     } catch (error) {
-      throw badData("Failed validation", error);
+      throw badData("Validation failed.", error);
     }
   }
 }

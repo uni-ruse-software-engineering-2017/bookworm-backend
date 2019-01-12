@@ -8,10 +8,10 @@ import {
   UNPROCESSABLE_ENTITY
 } from "http-status-codes";
 import "jest-extended";
-import * as supertest from "supertest";
+import { SuperTest, Test } from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
-import startTestServer from "../../../test-server";
+import { startTestServer } from "../../../test-server";
 import {
   generateAdminToken,
   generateCustomerToken
@@ -25,7 +25,7 @@ const API_URL = "/api";
 const ENDPOINT = `${API_URL}/catalog/books`;
 
 // globals
-let request: supertest.SuperTest<supertest.Test> = null;
+let api: SuperTest<Test> = null;
 let server: Server = null;
 let adminJwt = "";
 
@@ -110,21 +110,19 @@ async function createTestBook() {
 }
 
 beforeAll(async done => {
-  const _ = await startTestServer();
-  server = _.server;
-  request = _.request;
+  [server, api] = await startTestServer();
   done();
 });
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken(request);
+  adminJwt = await generateAdminToken(api);
 });
 
 describe("Book resource", () => {
   describe(`GET ${ENDPOINT}`, () => {
     it("should list all books with pagination", async () => {
-      const response = await request.get(ENDPOINT);
+      const response = await api.get(ENDPOINT);
 
       expect(response.status).toEqual(OK);
 
@@ -162,7 +160,7 @@ describe("Book resource", () => {
 
       await Promise.all(booksToInsert.map(book => bookService.create(book)));
 
-      const response = await request.get(ENDPOINT).query({
+      const response = await api.get(ENDPOINT).query({
         page_size: 10,
         page: 2
       });
@@ -187,7 +185,7 @@ describe("Book resource", () => {
     it("should get category record by its ID", async () => {
       const book = await createTestBook();
 
-      const response = await request.get(`${ENDPOINT}/${book.id}`);
+      const response = await api.get(`${ENDPOINT}/${book.id}`);
 
       expect(response.status).toEqual(OK);
 
@@ -202,7 +200,7 @@ describe("Book resource", () => {
     });
 
     it("should have status 404 when book with that ID does not exist", async () => {
-      const response = await request.get(`${ENDPOINT}/42`);
+      const response = await api.get(`${ENDPOINT}/42`);
 
       expect(response.status).toEqual(NOT_FOUND);
     });
@@ -217,7 +215,7 @@ describe("Book resource", () => {
         pages: 1
       };
 
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${book.id}`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(updates);
@@ -243,7 +241,7 @@ describe("Book resource", () => {
         biography: "bio"
       });
 
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${book.id}`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send({
@@ -266,7 +264,7 @@ describe("Book resource", () => {
     });
 
     it("should respond with status 404 when a book does not exist", async () => {
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/42`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send({});
@@ -276,17 +274,15 @@ describe("Book resource", () => {
 
     it("should not allow book updates by unauthenticated users", async () => {
       const category = await categoryService.create(testCategory);
-      const response = await request
-        .patch(`${ENDPOINT}/${category.id}`)
-        .send({});
+      const response = await api.patch(`${ENDPOINT}/${category.id}`).send({});
 
       expect(response.status).toBe(UNAUTHORIZED);
     });
 
     it("should not allow book updates by customers", async () => {
       const book = await createTestBook();
-      const customerToken = await generateCustomerToken(request);
-      const response = await request
+      const customerToken = await generateCustomerToken(api);
+      const response = await api
         .patch(`${ENDPOINT}/${book.id}`)
         .set("Authorization", `Bearer ${customerToken}`)
         .send({});
@@ -306,7 +302,7 @@ describe("Book resource", () => {
         authorId: author.id,
         categoryId: category.id
       };
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(book);
@@ -322,12 +318,12 @@ describe("Book resource", () => {
     });
 
     it("should not create a new category with an existing category's name", async () => {
-      await request
+      await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testCategory);
 
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testCategory);
@@ -352,7 +348,7 @@ describe("Book resource", () => {
         categoryId: "1"
       };
 
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(book);
@@ -362,14 +358,14 @@ describe("Book resource", () => {
     });
 
     it("should not allow unauthenticated users to create new books", async () => {
-      const response = await request.post(ENDPOINT).send(testBook);
+      const response = await api.post(ENDPOINT).send(testBook);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
 
     it("should not allow customers to create new books", async () => {
-      const token = await generateCustomerToken(request);
-      const response = await request
+      const token = await generateCustomerToken(api);
+      const response = await api
         .post(ENDPOINT)
         .send(testBook)
         .set("Authorization", `Bearer ${token}`);

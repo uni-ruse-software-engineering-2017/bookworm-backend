@@ -8,10 +8,10 @@ import {
   UNPROCESSABLE_ENTITY
 } from "http-status-codes";
 import "jest-extended";
-import * as supertest from "supertest";
+import { SuperTest, Test } from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
-import startTestServer from "../../../test-server";
+import { startTestServer } from "../../../test-server";
 import {
   generateAdminToken,
   generateCustomerToken
@@ -23,7 +23,7 @@ const API_URL = "/api";
 const ENDPOINT = `${API_URL}/catalog/authors`;
 
 // globals
-let request: supertest.SuperTest<supertest.Test> = null;
+let api: SuperTest<Test> = null;
 let server: Server = null;
 let adminJwt = "";
 
@@ -36,21 +36,19 @@ const testAuthor: IAuthor = {
 };
 
 beforeAll(async done => {
-  const _ = await startTestServer();
-  server = _.server;
-  request = _.request;
+  [server, api] = await startTestServer();
   done();
 });
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken(request);
+  adminJwt = await generateAdminToken(api);
 });
 
 describe("Author resource", () => {
   describe(`GET ${ENDPOINT}`, () => {
     it("should list all authors with pagination", async () => {
-      const response = await request.get(ENDPOINT);
+      const response = await api.get(ENDPOINT);
 
       expect(response.status).toEqual(OK);
 
@@ -80,7 +78,7 @@ describe("Author resource", () => {
         authorsToInsert.map(author => authorService.create(author))
       );
 
-      const response = await request.get(ENDPOINT).query({
+      const response = await api.get(ENDPOINT).query({
         page_size: 10,
         page: 2
       });
@@ -113,7 +111,7 @@ describe("Author resource", () => {
   describe(`GET ${ENDPOINT}/:authorId`, () => {
     it("should get author record by its ID", async () => {
       const author = await authorService.create(testAuthor);
-      const response = await request.get(`${ENDPOINT}/${author.id}`);
+      const response = await api.get(`${ENDPOINT}/${author.id}`);
 
       expect(response.status).toEqual(OK);
 
@@ -140,7 +138,7 @@ describe("Author resource", () => {
     });
 
     it("should have status 404 when author with that ID does not exist", async () => {
-      const response = await request.get(`${ENDPOINT}/42`);
+      const response = await api.get(`${ENDPOINT}/42`);
 
       expect(response.status).toEqual(NOT_FOUND);
     });
@@ -156,7 +154,7 @@ describe("Author resource", () => {
         imageUrl: "https://example.com/updated-image.jpg"
       };
 
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${author.id}`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(updates);
@@ -177,7 +175,7 @@ describe("Author resource", () => {
     });
 
     it("should respond with status 404 when an author does not exist", async () => {
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/42`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send({});
@@ -187,15 +185,15 @@ describe("Author resource", () => {
 
     it("should not allow author updates by unauthenticated users", async () => {
       const author = await authorService.create(testAuthor);
-      const response = await request.patch(`${ENDPOINT}/${author.id}`).send({});
+      const response = await api.patch(`${ENDPOINT}/${author.id}`).send({});
 
       expect(response.status).toBe(UNAUTHORIZED);
     });
 
     it("should not allow author updates by customers", async () => {
-      const customerToken = await generateCustomerToken(request);
+      const customerToken = await generateCustomerToken(api);
       const author = await authorService.create(testAuthor);
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${author.id}`)
         .set("Authorization", `Bearer ${customerToken}`)
         .send({});
@@ -206,7 +204,7 @@ describe("Author resource", () => {
 
   describe(`POST ${ENDPOINT}`, () => {
     it("should create a new author", async () => {
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testAuthor);
@@ -222,12 +220,12 @@ describe("Author resource", () => {
     });
 
     it("should not create a new author with an existing author's name", async () => {
-      await request
+      await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testAuthor);
 
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testAuthor);
@@ -239,14 +237,14 @@ describe("Author resource", () => {
     });
 
     it("should not allow unauthenticated users to create new authors", async () => {
-      const response = await request.post(ENDPOINT).send(testAuthor);
+      const response = await api.post(ENDPOINT).send(testAuthor);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
 
     it("should not allow customers to create new authors", async () => {
-      const token = await generateCustomerToken(request);
-      const response = await request
+      const token = await generateCustomerToken(api);
+      const response = await api
         .post(ENDPOINT)
         .send(testAuthor)
         .set("Authorization", `Bearer ${token}`);

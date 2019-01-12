@@ -7,10 +7,10 @@ import {
   UNPROCESSABLE_ENTITY
 } from "http-status-codes";
 import "jest-extended";
-import * as supertest from "supertest";
+import { SuperTest, Test } from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
-import startTestServer from "../../../test-server";
+import { startTestServer } from "../../../test-server";
 import {
   customerUser,
   generateAdminToken,
@@ -22,7 +22,7 @@ import userService from "../user.service";
 const API_URL = "/api";
 
 // globals
-let request: supertest.SuperTest<supertest.Test> = null;
+let api: SuperTest<Test> = null;
 let server: Server = null;
 let adminJwt = "";
 
@@ -36,15 +36,13 @@ const testUser: IApplicationUserData = {
 };
 
 beforeAll(async done => {
-  const _ = await startTestServer();
-  server = _.server;
-  request = _.request;
+  [server, api] = await startTestServer();
   done();
 });
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken(request);
+  adminJwt = await generateAdminToken(api);
 });
 
 describe("User resource", () => {
@@ -52,7 +50,7 @@ describe("User resource", () => {
     it("should list all users with pagination", async () => {
       await userService.create(testUser);
 
-      const response = await request
+      const response = await api
         .get(`${API_URL}/user`)
         .set("Authorization", `Bearer ${adminJwt}`);
 
@@ -84,7 +82,7 @@ describe("User resource", () => {
 
       const PAGE_SIZE = 10;
       const PAGE = 2;
-      const response = await request
+      const response = await api
         .get(`${API_URL}/user`)
         .query({
           page: PAGE,
@@ -105,14 +103,14 @@ describe("User resource", () => {
     });
 
     it("should not list users for unauthenticated requests", async () => {
-      const response = await request.get(`${API_URL}/user`);
+      const response = await api.get(`${API_URL}/user`);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
 
     it("should not list users for customer requests", async () => {
-      const customerToken = await generateCustomerToken(request);
-      const response = await request
+      const customerToken = await generateCustomerToken(api);
+      const response = await api
         .get(`${API_URL}/user`)
         .set("Authorization", `Bearer ${customerToken}`);
 
@@ -122,9 +120,9 @@ describe("User resource", () => {
 
   describe("GET /user/profile", () => {
     it(`should get the current user's profile information`, async () => {
-      const token = await generateCustomerToken(request);
+      const token = await generateCustomerToken(api);
 
-      const response = await request
+      const response = await api
         .get(`${API_URL}/user/profile`)
         .set("Authorization", `Bearer ${token}`);
 
@@ -145,7 +143,7 @@ describe("User resource", () => {
     });
 
     it(`should only allow authorized requests`, async () => {
-      const response = await request.get(`${API_URL}/user/profile`);
+      const response = await api.get(`${API_URL}/user/profile`);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
@@ -153,7 +151,7 @@ describe("User resource", () => {
 
   describe("POST /user", () => {
     it("should create a new user", async () => {
-      const response = await request
+      const response = await api
         .post(`${API_URL}/user`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testUser);
@@ -168,12 +166,12 @@ describe("User resource", () => {
     });
 
     it("should fail to create a new user with the same email address", async () => {
-      await request
+      await api
         .post(`${API_URL}/user`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testUser);
 
-      const response = await request
+      const response = await api
         .post(`${API_URL}/user`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testUser);
@@ -185,14 +183,14 @@ describe("User resource", () => {
     });
 
     it("should not allow unauthenticated users to create new users", async () => {
-      const response = await request.post(`${API_URL}/user`);
+      const response = await api.post(`${API_URL}/user`);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
 
     it("should not allow customers to create new users", async () => {
-      const token = await generateCustomerToken(request);
-      const response = await request
+      const token = await generateCustomerToken(api);
+      const response = await api
         .post(`${API_URL}/user`)
         .set("Authorization", `Bearer ${token}`);
 

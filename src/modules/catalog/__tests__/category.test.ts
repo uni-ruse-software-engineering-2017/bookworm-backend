@@ -11,7 +11,7 @@ import "jest-extended";
 import * as supertest from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
-import startTestServer from "../../../test-server";
+import { startTestServer } from "../../../test-server";
 import {
   generateAdminToken,
   generateCustomerToken
@@ -23,7 +23,7 @@ const API_URL = "/api";
 const ENDPOINT = `${API_URL}/catalog/categories`;
 
 // globals
-let request: supertest.SuperTest<supertest.Test> = null;
+let api: supertest.SuperTest<supertest.Test> = null;
 let server: Server = null;
 let adminJwt = "";
 
@@ -54,21 +54,19 @@ const detailedViewKeys = [
 ];
 
 beforeAll(async done => {
-  const _ = await startTestServer();
-  server = _.server;
-  request = _.request;
+  [server, api] = await startTestServer();
   done();
 });
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken(request);
+  adminJwt = await generateAdminToken(api);
 });
 
 describe("Category resource", () => {
   describe(`GET ${ENDPOINT}`, () => {
     it("should list all categories with pagination", async () => {
-      const response = await request.get(ENDPOINT);
+      const response = await api.get(ENDPOINT);
 
       expect(response.status).toEqual(OK);
 
@@ -95,7 +93,7 @@ describe("Category resource", () => {
         categoriesToInsert.map(cat => categoryService.create(cat))
       );
 
-      const response = await request.get(ENDPOINT).query({
+      const response = await api.get(ENDPOINT).query({
         page_size: 10,
         page: 2
       });
@@ -119,7 +117,7 @@ describe("Category resource", () => {
   describe(`GET ${ENDPOINT}/:categoryId`, () => {
     it("should get category record by its ID", async () => {
       const category = await categoryService.create(testCategory);
-      const response = await request.get(`${ENDPOINT}/${category.id}`);
+      const response = await api.get(`${ENDPOINT}/${category.id}`);
 
       expect(response.status).toEqual(OK);
 
@@ -139,7 +137,7 @@ describe("Category resource", () => {
         parentId: parentCategory.id
       });
 
-      const response = await request.get(`${ENDPOINT}/${parentCategory.id}`);
+      const response = await api.get(`${ENDPOINT}/${parentCategory.id}`);
 
       expect(response.status).toEqual(OK);
 
@@ -154,7 +152,7 @@ describe("Category resource", () => {
     });
 
     it("should have status 404 when category with that ID does not exist", async () => {
-      const response = await request.get(`${ENDPOINT}/42`);
+      const response = await api.get(`${ENDPOINT}/42`);
 
       expect(response.status).toEqual(NOT_FOUND);
     });
@@ -169,7 +167,7 @@ describe("Category resource", () => {
         seoUrl: "updated-category-name"
       };
 
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${category.id}`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(updates);
@@ -193,7 +191,7 @@ describe("Category resource", () => {
         name: "parent"
       });
 
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${category.id}`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send({
@@ -223,7 +221,7 @@ describe("Category resource", () => {
         parentId: parentCategory.id
       });
 
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${category.id}`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send({
@@ -242,7 +240,7 @@ describe("Category resource", () => {
     });
 
     it("should respond with status 404 when a category does not exist", async () => {
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/42`)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send({});
@@ -252,17 +250,15 @@ describe("Category resource", () => {
 
     it("should not allow category updates by unauthenticated users", async () => {
       const category = await categoryService.create(testCategory);
-      const response = await request
-        .patch(`${ENDPOINT}/${category.id}`)
-        .send({});
+      const response = await api.patch(`${ENDPOINT}/${category.id}`).send({});
 
       expect(response.status).toBe(UNAUTHORIZED);
     });
 
     it("should not allow category updates by customers", async () => {
-      const customerToken = await generateCustomerToken(request);
+      const customerToken = await generateCustomerToken(api);
       const category = await categoryService.create(testCategory);
-      const response = await request
+      const response = await api
         .patch(`${ENDPOINT}/${category.id}`)
         .set("Authorization", `Bearer ${customerToken}`)
         .send({});
@@ -273,7 +269,7 @@ describe("Category resource", () => {
 
   describe(`POST ${ENDPOINT}`, () => {
     it("should create a new category", async () => {
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testCategory);
@@ -287,12 +283,12 @@ describe("Category resource", () => {
     });
 
     it("should not create a new category with an existing category's name", async () => {
-      await request
+      await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testCategory);
 
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(testCategory);
@@ -307,14 +303,14 @@ describe("Category resource", () => {
         seoUrl: "cat"
       };
 
-      await request
+      await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(category);
 
       category.name = "cat 2";
 
-      const response = await request
+      const response = await api
         .post(ENDPOINT)
         .set("Authorization", `Bearer ${adminJwt}`)
         .send(category);
@@ -324,14 +320,14 @@ describe("Category resource", () => {
     });
 
     it("should not allow unauthenticated users to create new categories", async () => {
-      const response = await request.post(ENDPOINT).send(testCategory);
+      const response = await api.post(ENDPOINT).send(testCategory);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
 
     it("should not allow customers to create new categories", async () => {
-      const token = await generateCustomerToken(request);
-      const response = await request
+      const token = await generateCustomerToken(api);
+      const response = await api
         .post(ENDPOINT)
         .send(testCategory)
         .set("Authorization", `Bearer ${token}`);

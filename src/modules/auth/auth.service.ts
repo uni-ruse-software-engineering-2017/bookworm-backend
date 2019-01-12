@@ -7,6 +7,10 @@ import { ILoginCredentials, ISignUpData } from "./auth.contracts";
 
 class AuthService {
   async signUp(userData: ISignUpData) {
+    if (!userData.password) {
+      throw badData("Password is required.");
+    }
+
     try {
       const userObj = ApplicationUser.build({
         ...userData,
@@ -23,6 +27,7 @@ class AuthService {
       } else if (error.name === "SequelizeValidationError") {
         throw badData("Failed validation.", error.errors);
       } else {
+        console.log(error);
         throw error;
       }
     }
@@ -30,7 +35,7 @@ class AuthService {
 
   async login(loginData: ILoginCredentials) {
     if (!loginData.password || !loginData.email) {
-      throw unauthorized("You must provide email address and password.");
+      throw badData("You must provide email address and password.");
     }
 
     const user = await userService.getByUsername(loginData.email);

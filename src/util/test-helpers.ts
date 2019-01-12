@@ -1,7 +1,7 @@
+import { SuperTest, Test } from "supertest";
 import { ILoginCredentials } from "../modules/auth/auth.contracts";
 import { IApplicationUserData } from "../modules/user/user.contracts";
 import userService from "../modules/user/user.service";
-import supertest = require("supertest");
 
 const API_URL = "/api";
 
@@ -23,12 +23,10 @@ export const customerUser: IApplicationUserData = {
   role: "customer"
 };
 
-export async function generateAdminToken(
-  request: supertest.SuperTest<supertest.Test>
-) {
+export async function generateAdminToken(api: SuperTest<Test>) {
   await userService.create(adminUser);
 
-  const response = await request.post(`${API_URL}/login`).send({
+  const response = await api.post(`${API_URL}/login`).send({
     email: adminUser.email,
     password: adminUser.password
   } as ILoginCredentials);
@@ -38,12 +36,10 @@ export async function generateAdminToken(
   return jwt;
 }
 
-export async function generateCustomerToken(
-  request: supertest.SuperTest<supertest.Test>
-) {
+export async function generateCustomerToken(api: SuperTest<Test>) {
   await userService.create(customerUser);
 
-  const response = await request.post(`${API_URL}/login`).send({
+  const response = await api.post(`${API_URL}/login`).send({
     email: customerUser.email,
     password: customerUser.password
   } as ILoginCredentials);

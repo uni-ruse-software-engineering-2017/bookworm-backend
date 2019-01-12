@@ -1,7 +1,6 @@
 import * as HttpStatus from "http-status-codes";
-import { sign } from "jsonwebtoken";
 import * as Router from "koa-router";
-import { base64Encode } from "../../util/base64";
+import { createJwt } from "../../util/jwt";
 import { ILoginCredentials, ISignUpData } from "./auth.contracts";
 import authService from "./auth.service";
 
@@ -12,16 +11,7 @@ AuthController.post("/login", async ctx => {
 
   const userSession = await authService.login({ email, password });
 
-  const jwt = await sign(
-    {
-      sessionId: userSession.sessionId
-    },
-    base64Encode(process.env.JWT_SECRET),
-    {
-      issuer: process.env.JWT_ISSUER,
-      expiresIn: process.env.SESSION_DURATION || "1d"
-    }
-  );
+  const jwt = await createJwt(userSession.sessionId);
 
   ctx.body = {
     token: jwt

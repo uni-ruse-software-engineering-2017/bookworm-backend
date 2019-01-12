@@ -12,9 +12,10 @@ import * as supertest from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
 import startTestServer from "../../../test-server";
-import { ILoginCredentials } from "../../auth/auth.contracts";
-import { IApplicationUserData } from "../../user/user.contracts";
-import userService from "../../user/user.service";
+import {
+  generateAdminToken,
+  generateCustomerToken
+} from "../../../util/test-helpers";
 import authorService from "../author.service";
 import { IAuthor } from "../catalog.contracts";
 
@@ -34,51 +35,6 @@ const testAuthor: IAuthor = {
   biography: "A great author."
 };
 
-const customerUser: IApplicationUserData = {
-  email: "user@example.com",
-  password: "12332112",
-  active: true,
-  firstName: "Peter",
-  lastName: "Smith",
-  role: "customer"
-};
-
-// helper functions
-async function generateAdminToken() {
-  const adminUser: IApplicationUserData = {
-    email: "admin@example.com",
-    password: "12332112",
-    active: true,
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin"
-  };
-
-  await userService.create(adminUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: adminUser.email,
-    password: adminUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
-async function generateCustomerToken() {
-  await userService.create(customerUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: customerUser.email,
-    password: customerUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
 beforeAll(async done => {
   const _ = await startTestServer();
   server = _.server;
@@ -88,7 +44,7 @@ beforeAll(async done => {
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken();
+  adminJwt = await generateAdminToken(request);
 });
 
 describe("Author resource", () => {
@@ -237,7 +193,7 @@ describe("Author resource", () => {
     });
 
     it("should not allow author updates by customers", async () => {
-      const customerToken = await generateCustomerToken();
+      const customerToken = await generateCustomerToken(request);
       const author = await authorService.create(testAuthor);
       const response = await request
         .patch(`${ENDPOINT}/${author.id}`)
@@ -289,7 +245,7 @@ describe("Author resource", () => {
     });
 
     it("should not allow customers to create new authors", async () => {
-      const token = await generateCustomerToken();
+      const token = await generateCustomerToken(request);
       const response = await request
         .post(ENDPOINT)
         .send(testAuthor)

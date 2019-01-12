@@ -12,9 +12,10 @@ import * as supertest from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
 import startTestServer from "../../../test-server";
-import { ILoginCredentials } from "../../auth/auth.contracts";
-import { IApplicationUserData } from "../../user/user.contracts";
-import userService from "../../user/user.service";
+import {
+  generateAdminToken,
+  generateCustomerToken
+} from "../../../util/test-helpers";
 import authorService from "../author.service";
 import bookService from "../book.service";
 import { IAuthor, IBook, ICategory } from "../catalog.contracts";
@@ -39,15 +40,6 @@ const testAuthor: IAuthor = {
   diedAt: new Date(),
   imageUrl: "https://example.com/author.jpg",
   biography: "A great author."
-};
-
-const customerUser: IApplicationUserData = {
-  email: "user@example.com",
-  password: "12332112",
-  active: true,
-  firstName: "Peter",
-  lastName: "Smith",
-  role: "customer"
 };
 
 const testBook: IBook = {
@@ -94,42 +86,6 @@ const listViewScopeKeys = [
   "author"
 ];
 
-// helper functions
-async function generateAdminToken() {
-  const adminUser: IApplicationUserData = {
-    email: "admin@example.com",
-    password: "12332112",
-    active: true,
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin"
-  };
-
-  await userService.create(adminUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: adminUser.email,
-    password: adminUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
-async function generateCustomerToken() {
-  await userService.create(customerUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: customerUser.email,
-    password: customerUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
 async function createTestCategory() {
   return categoryService.create(testCategory);
 }
@@ -162,7 +118,7 @@ beforeAll(async done => {
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken();
+  adminJwt = await generateAdminToken(request);
 });
 
 describe("Book resource", () => {
@@ -327,11 +283,11 @@ describe("Book resource", () => {
       expect(response.status).toBe(UNAUTHORIZED);
     });
 
-    it("should not allow category updates by customers", async () => {
-      const customerToken = await generateCustomerToken();
-      const category = await categoryService.create(testCategory);
+    it("should not allow book updates by customers", async () => {
+      const book = await createTestBook();
+      const customerToken = await generateCustomerToken(request);
       const response = await request
-        .patch(`${ENDPOINT}/${category.id}`)
+        .patch(`${ENDPOINT}/${book.id}`)
         .set("Authorization", `Bearer ${customerToken}`)
         .send({});
 
@@ -406,16 +362,16 @@ describe("Book resource", () => {
     });
 
     it("should not allow unauthenticated users to create new books", async () => {
-      const response = await request.post(ENDPOINT).send(testCategory);
+      const response = await request.post(ENDPOINT).send(testBook);
 
       expect(response.status).toEqual(UNAUTHORIZED);
     });
 
     it("should not allow customers to create new books", async () => {
-      const token = await generateCustomerToken();
+      const token = await generateCustomerToken(request);
       const response = await request
         .post(ENDPOINT)
-        .send(testCategory)
+        .send(testBook)
         .set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toEqual(FORBIDDEN);

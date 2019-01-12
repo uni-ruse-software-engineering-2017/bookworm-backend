@@ -12,9 +12,10 @@ import * as supertest from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
 import startTestServer from "../../../test-server";
-import { ILoginCredentials } from "../../auth/auth.contracts";
-import { IApplicationUserData } from "../../user/user.contracts";
-import userService from "../../user/user.service";
+import {
+  generateAdminToken,
+  generateCustomerToken
+} from "../../../util/test-helpers";
 import { ICategory } from "../catalog.contracts";
 import categoryService from "../category.service";
 
@@ -29,15 +30,6 @@ let adminJwt = "";
 const testCategory: ICategory = {
   name: "Science fiction",
   seoUrl: "sci-fi"
-};
-
-const customerUser: IApplicationUserData = {
-  email: "user@example.com",
-  password: "12332112",
-  active: true,
-  firstName: "Peter",
-  lastName: "Smith",
-  role: "customer"
 };
 
 const listViewKeys = [
@@ -61,42 +53,6 @@ const detailedViewKeys = [
   "updatedAt"
 ];
 
-// helper functions
-async function generateAdminToken() {
-  const adminUser: IApplicationUserData = {
-    email: "admin@example.com",
-    password: "12332112",
-    active: true,
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin"
-  };
-
-  await userService.create(adminUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: adminUser.email,
-    password: adminUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
-async function generateCustomerToken() {
-  await userService.create(customerUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: customerUser.email,
-    password: customerUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
 beforeAll(async done => {
   const _ = await startTestServer();
   server = _.server;
@@ -106,7 +62,7 @@ beforeAll(async done => {
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken();
+  adminJwt = await generateAdminToken(request);
 });
 
 describe("Category resource", () => {
@@ -304,7 +260,7 @@ describe("Category resource", () => {
     });
 
     it("should not allow category updates by customers", async () => {
-      const customerToken = await generateCustomerToken();
+      const customerToken = await generateCustomerToken(request);
       const category = await categoryService.create(testCategory);
       const response = await request
         .patch(`${ENDPOINT}/${category.id}`)
@@ -374,7 +330,7 @@ describe("Category resource", () => {
     });
 
     it("should not allow customers to create new categories", async () => {
-      const token = await generateCustomerToken();
+      const token = await generateCustomerToken(request);
       const response = await request
         .post(ENDPOINT)
         .send(testCategory)

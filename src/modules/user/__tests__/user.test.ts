@@ -11,7 +11,11 @@ import * as supertest from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { IPaginatedResource } from "../../../services/paginate";
 import startTestServer from "../../../test-server";
-import { ILoginCredentials } from "../../auth/auth.contracts";
+import {
+  customerUser,
+  generateAdminToken,
+  generateCustomerToken
+} from "../../../util/test-helpers";
 import { IApplicationUserData, IUserProfile } from "../user.contracts";
 import userService from "../user.service";
 
@@ -31,51 +35,6 @@ const testUser: IApplicationUserData = {
   role: "customer"
 };
 
-const customerUser: IApplicationUserData = {
-  email: "user@example.com",
-  password: "12332112",
-  active: true,
-  firstName: "Peter",
-  lastName: "Smith",
-  role: "customer"
-};
-
-// helper functions
-async function generateAdminToken() {
-  const adminUser: IApplicationUserData = {
-    email: "admin@example.com",
-    password: "12332112",
-    active: true,
-    firstName: "John",
-    lastName: "Doe",
-    role: "admin"
-  };
-
-  await userService.create(adminUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: adminUser.email,
-    password: adminUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
-async function generateCustomerToken() {
-  await userService.create(customerUser);
-
-  const response = await request.post(`${API_URL}/login`).send({
-    email: customerUser.email,
-    password: customerUser.password
-  } as ILoginCredentials);
-
-  const jwt: string = response.body.token;
-
-  return jwt;
-}
-
 beforeAll(async done => {
   const _ = await startTestServer();
   server = _.server;
@@ -85,7 +44,7 @@ beforeAll(async done => {
 
 beforeEach(async () => {
   await resetDatabase();
-  adminJwt = await generateAdminToken();
+  adminJwt = await generateAdminToken(request);
 });
 
 describe("User resource", () => {
@@ -152,7 +111,7 @@ describe("User resource", () => {
     });
 
     it("should not list users for customer requests", async () => {
-      const customerToken = await generateCustomerToken();
+      const customerToken = await generateCustomerToken(request);
       const response = await request
         .get(`${API_URL}/user`)
         .set("Authorization", `Bearer ${customerToken}`);
@@ -163,7 +122,7 @@ describe("User resource", () => {
 
   describe("GET /user/profile", () => {
     it(`should get the current user's profile information`, async () => {
-      const token = await generateCustomerToken();
+      const token = await generateCustomerToken(request);
 
       const response = await request
         .get(`${API_URL}/user/profile`)
@@ -232,7 +191,7 @@ describe("User resource", () => {
     });
 
     it("should not allow customers to create new users", async () => {
-      const token = await generateCustomerToken();
+      const token = await generateCustomerToken(request);
       const response = await request
         .post(`${API_URL}/user`)
         .set("Authorization", `Bearer ${token}`);

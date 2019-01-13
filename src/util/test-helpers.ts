@@ -1,4 +1,5 @@
 import { SuperTest, Test } from "supertest";
+import ApplicationUser from "../models/ApplicationUser";
 import { ILoginCredentials } from "../modules/auth/auth.contracts";
 import { IApplicationUserData } from "../modules/user/user.contracts";
 import userService from "../modules/user/user.service";
@@ -47,4 +48,19 @@ export async function generateCustomerToken(api: SuperTest<Test>) {
   const jwt: string = response.body.token;
 
   return jwt;
+}
+
+export async function generateCustomerAndLogin(
+  api: SuperTest<Test>
+): Promise<[ApplicationUser, string]> {
+  const customer = await userService.create(customerUser);
+
+  const response = await api.post(`${API_URL}/login`).send({
+    email: customerUser.email,
+    password: customerUser.password
+  } as ILoginCredentials);
+
+  const jwt: string = response.body.token;
+
+  return [customer, jwt];
 }

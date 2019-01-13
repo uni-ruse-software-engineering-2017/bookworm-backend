@@ -273,8 +273,8 @@ describe("Book resource", () => {
     });
 
     it("should not allow book updates by unauthenticated users", async () => {
-      const category = await categoryService.create(testCategory);
-      const response = await api.patch(`${ENDPOINT}/${category.id}`).send({});
+      const book = await createTestBook();
+      const response = await api.patch(`${ENDPOINT}/${book.id}`).send({});
 
       expect(response.status).toBe(UNAUTHORIZED);
     });

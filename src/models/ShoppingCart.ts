@@ -28,7 +28,8 @@ export default class ShoppingCart extends Model<ShoppingCart> {
   @Column({
     field: "user_id",
     type: DataType.BIGINT,
-    unique: "shopping_cart_book_user"
+    unique: "shopping_cart_book_user",
+    onDelete: "cascade"
   })
   userId: string;
 
@@ -39,7 +40,8 @@ export default class ShoppingCart extends Model<ShoppingCart> {
   @Column({
     field: "book_id",
     type: DataType.BIGINT,
-    unique: "shopping_cart_book_user"
+    unique: "shopping_cart_book_user",
+    onDelete: "cascade"
   })
   bookId: string;
 }

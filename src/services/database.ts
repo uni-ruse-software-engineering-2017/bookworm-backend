@@ -22,6 +22,6 @@ export function resetDatabase() {
   );
 
   return Promise.all(
-    modelsList.map(model => model.destroy({ truncate: true }))
+    modelsList.map(model => model.truncate({ cascade: true, force: true }))
   );
 }

@@ -27,7 +27,6 @@ class AuthService {
       } else if (error.name === "SequelizeValidationError") {
         throw badData("Failed validation.", error.errors);
       } else {
-        console.log(error);
         throw error;
       }
     }

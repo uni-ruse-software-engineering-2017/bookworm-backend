@@ -35,7 +35,8 @@ const toCartLine = (item: ShoppingCart) => {
     title: item.book.title,
     coverImage: item.book.coverImage,
     id: item.id,
-    price: item.book.price
+    price: item.book.price,
+    bookId: item.book.id
   };
 };
 
@@ -59,13 +60,13 @@ class CartService implements ICartService {
     return {
       items,
       total
-    };
+    } as ICartContent;
   }
 
   async addItem(userId: string, bookId: string) {
     try {
-      const inserted = await ShoppingCart.create({ bookId, userId });
-      const addedItem = await this.getCartLine(inserted.id);
+      const cartLine = await ShoppingCart.create({ userId, bookId });
+      const addedItem = await this.getCartLine(cartLine.id);
       return addedItem;
     } catch (error) {
       if (error.name === "SequelizeForeignKeyConstraintError") {

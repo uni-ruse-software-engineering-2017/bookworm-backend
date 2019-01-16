@@ -15,3 +15,10 @@ export interface ICartContent {
   items: ICartLine[];
   total: number;
 }
+
+export interface ISubscriptionPlan {
+  readonly id?: string;
+  name: string;
+  booksPerMonth: number;
+  pricePerMonth: number;
+}

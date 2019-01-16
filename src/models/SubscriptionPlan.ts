@@ -4,16 +4,20 @@ import {
   DataType,
   Model,
   PrimaryKey,
-  Table
+  Table,
+  Unique
 } from "sequelize-typescript";
+import { ISubscriptionPlan } from "../modules/commerce/commerce.contracts";
 
 @Table({ tableName: "subscription_plan" })
-export default class SubscriptionPlan extends Model<SubscriptionPlan> {
+export default class SubscriptionPlan extends Model<SubscriptionPlan>
+  implements ISubscriptionPlan {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
   id: string;
 
+  @Unique
   @Column
   name: string;
 

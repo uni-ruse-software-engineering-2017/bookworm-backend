@@ -1,6 +1,8 @@
 import { badData, notFound } from "boom";
 import Author from "../../models/Author";
 import Book from "../../models/Book";
+import BookPurchase, { IBookPurchase } from "../../models/BookPurchase";
+import Purchase from "../../models/Purchase";
 import ShoppingCart from "../../models/ShoppingCart";
 import { ICartContent, ICartLine } from "./commerce.contracts";
 
@@ -22,7 +24,7 @@ export interface ICartService {
 
   clear(userId: string): Promise<void>;
 
-  // checkout(): Promise<void>;
+  checkout(userId: string): Promise<any>;
 }
 
 const toCartLine = (item: ShoppingCart) => {
@@ -125,7 +127,40 @@ class CartService implements ICartService {
     return;
   }
 
-  // TODO: checkout
+  async checkout(userId: string): Promise<any> {
+    const cartItems = await this.getItems(userId);
+
+    if (!cartItems.items.length) {
+      throw badData("Checkout failed because there are no items in the cart.");
+    }
+
+    // create the purchase record
+    const purchase = await Purchase.create({
+      isPaid: true,
+      paidAt: new Date(),
+      paymentMethod: "card",
+      placedAt: new Date(),
+      userId: userId,
+      snapshot: cartItems.items
+    });
+
+    const purchasedBooks: IBookPurchase[] = cartItems.items.map(item => {
+      const purchasedBook: IBookPurchase = {
+        bookId: item.bookId,
+        purchaseId: purchase.id,
+        snapshot: item
+      };
+      return purchasedBook;
+    });
+
+    // 2. add books references to the purchase
+    await BookPurchase.bulkCreate(purchasedBooks);
+
+    // 3. clear cart items
+    await this.clear(userId);
+
+    return purchase;
+  }
 }
 
 export default new CartService();

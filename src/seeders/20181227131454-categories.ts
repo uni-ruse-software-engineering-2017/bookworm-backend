@@ -15,32 +15,42 @@ import logger from "../services/logger";
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const topLevelCategories: ICategory[] = [
-      { id: "1", name: "Fiction", seoUrl: "fiction" },
-      { id: "2", name: "History", seoUrl: "history" },
-      { id: "3", name: "Science", seoUrl: "science" },
-      { id: "4", name: "Philosphy", seoUrl: "philosphy" },
-      { id: "5", name: "Children", seoUrl: "children" }
+      { name: "Fiction", seoUrl: "fiction" },
+      { name: "History", seoUrl: "history" },
+      { name: "Science", seoUrl: "science" },
+      { name: "Philosphy", seoUrl: "philosphy" },
+      { name: "Children", seoUrl: "children" }
     ];
 
-    await Category.bulkCreate(topLevelCategories);
+    const created = await Category.bulkCreate(topLevelCategories);
 
     const fictionSubCategories: ICategory[] = [
-      { parentId: "1", name: "Sci-fi", seoUrl: "sci-fi" },
+      { parentId: created[0].id, name: "Sci-fi", seoUrl: "sci-fi" },
       {
-        parentId: "1",
+        parentId: created[0].id,
         name: "Historical Fiction",
         seoUrl: "historical-fiction"
       },
-      { parentId: "1", name: "Magical realism", seoUrl: "magical-realism" },
-      { parentId: "1", name: "Fantasy", seoUrl: "fantasy" }
+      {
+        parentId: created[0].id,
+        name: "Magical realism",
+        seoUrl: "magical-realism"
+      },
+      { parentId: created[0].id, name: "Fantasy", seoUrl: "fantasy" }
     ];
 
-    await Category.bulkCreate(fictionSubCategories);
-
-    // TODO: add more categories
+    try {
+      await Category.bulkCreate(fictionSubCategories);
+    } catch (error) {
+      console.error(error);
+    }
   },
 
-  down: (queryInterface, Sequelize) => {
-    return Category.truncate({ cascade: true, force: true });
+  down: async (queryInterface, Sequelize) => {
+    try {
+      await Category.truncate({ cascade: true, force: true });
+    } catch (error) {
+      console.error(error);
+    }
   }
 };

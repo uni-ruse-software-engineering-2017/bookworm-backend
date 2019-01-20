@@ -33,10 +33,18 @@ module.exports = {
       }
     ];
 
-    return Author.bulkCreate(authors);
+    try {
+      await Author.bulkCreate(authors);
+    } catch (error) {
+      console.error(error);
+    }
   },
 
-  down: (queryInterface, Sequelize) => {
-    return Author.truncate({ cascade: true, force: true });
+  down: async (queryInterface, Sequelize) => {
+    try {
+      await Author.truncate({ cascade: true, force: true });
+    } catch (error) {
+      console.error(error);
+    }
   }
 };

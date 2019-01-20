@@ -1,5 +1,6 @@
 import Author from "../models/Author";
 import Book from "../models/Book";
+import Category from "../models/Category";
 import { IBook } from "../modules/catalog/catalog.contracts";
 import database from "../services/database";
 import logger from "../services/logger";
@@ -15,6 +16,8 @@ import logger from "../services/logger";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    const category = await Category.findOne();
+
     const harukiMurakami = await Author.findOne({
       where: { name: "Haruki Murakami" }
     });
@@ -31,7 +34,7 @@ module.exports = {
         price: 8.63,
         pages: 467,
         datePublished: new Date(),
-        categoryId: "1",
+        categoryId: category.id,
         available: true,
         coverImage: "https://images.gr-assets.com/books/1429638085l/4929.jpg",
         featured: true,
@@ -45,7 +48,7 @@ module.exports = {
         price: 9.52,
         pages: 296,
         datePublished: new Date(),
-        categoryId: "1",
+        categoryId: category.id,
         available: true,
         coverImage: "https://images.gr-assets.com/books/1386924361l/11297.jpg",
         featured: true,
@@ -62,7 +65,7 @@ module.exports = {
         price: 6.31,
         pages: 471,
         datePublished: new Date(),
-        categoryId: "1",
+        categoryId: category.id,
         available: true,
         coverImage: "https://images.gr-assets.com/books/1492591524l/46170.jpg",
         featured: true,
@@ -76,7 +79,7 @@ module.exports = {
         price: 4.5,
         pages: 132,
         datePublished: new Date(),
-        categoryId: "1",
+        categoryId: category.id,
         available: true,
         coverImage: "https://images.gr-assets.com/books/1329189714l/2165.jpg",
         featured: true,
@@ -84,10 +87,18 @@ module.exports = {
       }
     ];
 
-    await Book.bulkCreate([...murakamiBooks, ...hemingwayBooks]);
+    try {
+      await Book.bulkCreate([...murakamiBooks, ...hemingwayBooks]);
+    } catch (error) {
+      console.error(error);
+    }
   },
 
-  down: (queryInterface, Sequelize) => {
-    return Book.truncate({ cascade: true, force: true });
+  down: async (queryInterface, Sequelize) => {
+    try {
+      await Book.truncate({ cascade: true, force: true });
+    } catch (error) {
+      console.error(error);
+    }
   }
 };

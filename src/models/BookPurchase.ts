@@ -3,37 +3,32 @@ import {
   BelongsTo,
   Column,
   DataType,
-  Default,
   ForeignKey,
   Model,
   PrimaryKey,
   Table
 } from "sequelize-typescript";
+import { ICartLine } from "../modules/commerce/commerce.contracts";
 import Book from "./Book";
 import Purchase from "./Purchase";
 
+export interface IBookPurchase {
+  readonly id?: string;
+  readonly purchaseId: string;
+  readonly bookId: string;
+  readonly snapshot: ICartLine;
+}
+
 @Table({ tableName: "book_purchase" })
-export default class BookPurchase extends Model<BookPurchase> {
+export default class BookPurchase extends Model<BookPurchase>
+  implements IBookPurchase {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
   id: string;
 
-  @Column({ field: "payment_method" })
-  paymentMethod: string;
-
-  @Column({ field: "placed_at", type: DataType.DATE })
-  placedAt: Date;
-
-  @Column({ field: "paid_at", type: DataType.DATE })
-  paidAt: Date;
-
-  @Default(false)
-  @Column({ field: "is_paid", type: DataType.BOOLEAN })
-  isPaid: boolean;
-
   @Column(DataType.JSON)
-  snapshot: any;
+  snapshot: ICartLine;
 
   /**
    * Foreign key - Purchase
@@ -43,7 +38,7 @@ export default class BookPurchase extends Model<BookPurchase> {
 
   @ForeignKey(() => Purchase)
   @Column({ field: "purchase_id", type: DataType.BIGINT })
-  purchaseid: string;
+  purchaseId: string;
 
   /**
    * Foreign key - Book
@@ -53,5 +48,5 @@ export default class BookPurchase extends Model<BookPurchase> {
 
   @ForeignKey(() => Book)
   @Column({ field: "book_id", type: DataType.BIGINT })
-  bookid: string;
+  bookId: string;
 }

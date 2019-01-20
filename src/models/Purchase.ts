@@ -45,7 +45,7 @@ export default class Purchase extends Model<Purchase> {
 
   @ForeignKey(() => ApplicationUser)
   @Column({ field: "user_id", type: DataType.BIGINT })
-  userid: string;
+  userId: string;
 
   @BelongsToMany(() => Book, () => BookPurchase)
   books: Book[];

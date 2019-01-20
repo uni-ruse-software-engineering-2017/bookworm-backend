@@ -13,7 +13,7 @@
     "watch-test": "npm run test -- --watchAll",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "seed": "sequelize db:seed:undo:all && sequelize db:seed:all --debug",
+    "seed": "sequelize db:seed:undo:all && sequelize db:seed:all",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "debug": "npm run build && npm run watch-debug",
     "serve-debug": "nodemon --inspect dist/server.js",

@@ -16,6 +16,16 @@ UserController.get("/", withRole("admin"), withPagination, async ctx => {
   return ctx;
 });
 
+UserController.post("/", withRole("admin"), async ctx => {
+  const userData = ctx.request.body as IApplicationUserData;
+  const user = await userService.create(userData);
+
+  ctx.body = user;
+  ctx.status = HttpStatus.CREATED;
+
+  return ctx;
+});
+
 UserController.get("/profile", async ctx => {
   const profile = ctx.state.session as IUserProfile;
 
@@ -26,16 +36,6 @@ UserController.get("/profile", async ctx => {
     lastName: profile.lastName,
     role: profile.role
   } as Partial<IUserProfile>;
-
-  return ctx;
-});
-
-UserController.post("/", withRole("admin"), async ctx => {
-  const userData = ctx.request.body as IApplicationUserData;
-  const user = await userService.create(userData);
-
-  ctx.body = user;
-  ctx.status = HttpStatus.CREATED;
 
   return ctx;
 });

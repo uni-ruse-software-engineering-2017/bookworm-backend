@@ -47,4 +47,15 @@ CartController.delete("/:id", withRole("customer"), async ctx => {
   return ctx;
 });
 
+CartController.post("/checkout", withRole("customer"), async ctx => {
+  const session = ctx.state.session as IApplicationUserData;
+
+  const purchase = await cartService.checkout(session.id);
+
+  ctx.body = purchase;
+  ctx.status = HttpStatus.OK;
+
+  return ctx;
+});
+
 export default CartController;

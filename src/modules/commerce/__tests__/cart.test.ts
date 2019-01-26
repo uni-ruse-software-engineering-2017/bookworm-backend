@@ -155,6 +155,46 @@ describe("Shopping Cart resource", () => {
       expect(addedBook.coverImage).toEqual(book.coverImage);
       expect(addedBook.available).toEqual(book.available);
     });
+
+    it("should not add a book which is already in the cart", async () => {
+      const [customer, jwt] = await generateCustomerAndLogin(api);
+      const book = await createTestBook();
+
+      await cartService.addItem(customer.id, book.id);
+
+      const response = await api
+        .post(ENDPOINT)
+        .set("Authorization", `Bearer ${jwt}`)
+        .send({
+          bookId: book.id
+        });
+
+      expect(response.status).toEqual(422);
+      expect(response.body.error).toEqual("Unprocessable Entity");
+      expect(response.body.message).toEqual(
+        "The book is already added in the cart."
+      );
+    });
+
+    it("should not add a book which is already purchased by the customer", async () => {
+      const [customer, jwt] = await generateCustomerAndLogin(api);
+      const book = await createTestBook();
+
+      // purchase the book
+      await cartService.addItem(customer.id, book.id);
+      await cartService.checkout(customer.id);
+
+      const response = await api
+        .post(ENDPOINT)
+        .set("Authorization", `Bearer ${jwt}`)
+        .send({
+          bookId: book.id
+        });
+
+      expect(response.status).toEqual(422);
+      expect(response.body.error).toEqual("Unprocessable Entity");
+      expect(response.body.message).toEqual("User already owns this book.");
+    });
   });
 
   describe(`DELETE ${ENDPOINT}`, () => {

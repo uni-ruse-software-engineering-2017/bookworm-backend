@@ -1,19 +1,37 @@
 import { badData } from "boom";
 import ApplicationUser from "../../models/ApplicationUser";
+import Purchase from "../../models/Purchase";
 import paginate, { IPaginationQuery } from "../../services/paginate";
 import { IApplicationUserData } from "./user.contracts";
 
 class UserService {
+  async getById(userId = "") {
+    const user = await ApplicationUser.findById(userId, {
+      include: [Purchase]
+    });
+
+    return user;
+  }
+
   async getByUsername(username = "") {
     return ApplicationUser.findOne({
       where: {
         email: username
-      }
+      },
+      include: [Purchase]
     });
   }
 
   async getAll(pagination: IPaginationQuery<ApplicationUser>) {
-    return paginate(ApplicationUser, pagination);
+    const users = await paginate(ApplicationUser, pagination);
+
+    // remove confidential data
+    users.items = users.items.map(u => {
+      u.password = null;
+      return u;
+    });
+
+    return users;
   }
 
   async create(userData: IApplicationUserData) {

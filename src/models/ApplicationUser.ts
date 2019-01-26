@@ -7,6 +7,7 @@ import {
   CreatedAt,
   DataType,
   Default,
+  HasMany,
   Length,
   Model,
   PrimaryKey,
@@ -14,6 +15,8 @@ import {
   Unique,
   UpdatedAt
 } from "sequelize-typescript";
+import Book from "./Book";
+import Purchase from "./Purchase";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -64,8 +67,25 @@ export default class ApplicationUser extends Model<ApplicationUser> {
   @Column({ field: "updated_at" })
   updatedAt: Date;
 
+  @HasMany(() => Purchase)
+  purchases: Purchase[];
+
   async comparePasswords(candidatePassword: string = "") {
     return bcrypt.compare(candidatePassword, this.password);
+  }
+
+  async getPurchasedBooks() {
+    const purchases: Purchase[] = this.get("purchases");
+
+    const bookIds = new Set(
+      purchases
+        .reduce((prev, curr) => {
+          return prev.concat(curr.snapshot || []);
+        }, [])
+        .map((book: Book) => book.id)
+    );
+
+    return bookIds;
   }
 
   @BeforeSave

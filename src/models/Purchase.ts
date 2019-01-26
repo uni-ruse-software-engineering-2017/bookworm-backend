@@ -35,7 +35,7 @@ export default class Purchase extends Model<Purchase> {
   isPaid: boolean;
 
   @Column(DataType.JSON)
-  snapshot: any;
+  snapshot: any[];
 
   /**
    * Foreign key - User

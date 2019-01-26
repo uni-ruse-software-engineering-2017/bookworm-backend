@@ -4,6 +4,7 @@ import Book from "../../models/Book";
 import BookPurchase, { IBookPurchase } from "../../models/BookPurchase";
 import Purchase from "../../models/Purchase";
 import ShoppingCart from "../../models/ShoppingCart";
+import userService from "../user/user.service";
 import { ICartContent, ICartLine } from "./commerce.contracts";
 
 const cartLineScope = [
@@ -67,8 +68,17 @@ class CartService implements ICartService {
 
   async addItem(userId: string, bookId: string) {
     try {
+      const user = await userService.getById(userId);
+      const purchasedBookIds = await user.getPurchasedBooks();
+
+      if (purchasedBookIds.has(bookId)) {
+        throw badData("User already owns this book.");
+      }
+
       const cartLine = await ShoppingCart.create({ userId, bookId });
+
       const addedItem = await this.getCartLine(cartLine.id);
+
       return addedItem;
     } catch (error) {
       if (error.name === "SequelizeForeignKeyConstraintError") {
@@ -83,7 +93,7 @@ class CartService implements ICartService {
       }
 
       if (error.name === "SequelizeUniqueConstraintError") {
-        throw badData("Book already added.");
+        throw badData("The book is already added in the cart.");
       }
 
       throw error;

@@ -22,7 +22,7 @@ app.use(RestAPI.routes());
   try {
     await database.authenticate();
     // await database.drop({ cascade: true });
-    await database.sync({ force: false });
+    // await database.sync({ force: false });
 
     logger.info("Application connected to the database successfully.");
     app.emit("DB_INITIALIZED");

@@ -1,6 +1,6 @@
 {
   "hooks": {
     "pre-commit": "npm run build && npm test",
-    "post-merge": "npm install"
+    "post-merge": "npm ci"
   }
 }

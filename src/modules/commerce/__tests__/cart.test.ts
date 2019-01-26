@@ -4,11 +4,11 @@ import "jest-extended";
 import { SuperTest, Test } from "supertest";
 import { resetDatabase } from "../../../services/database";
 import { startTestServer } from "../../../test-server";
-import { generateCustomerAndLogin } from "../../../util/test-helpers";
-import authorService from "../../catalog/author.service";
-import bookService from "../../catalog/book.service";
-import { IAuthor, IBook, ICategory } from "../../catalog/catalog.contracts";
-import categoryService from "../../catalog/category.service";
+import {
+  createTestBook,
+  generateCustomerAndLogin,
+  testAuthor
+} from "../../../util/test-helpers";
 import cartService from "../cart.service";
 import { ICartContent } from "../commerce.contracts";
 
@@ -18,55 +18,6 @@ const ENDPOINT = `${API_URL}/cart`;
 // globals
 let api: SuperTest<Test> = null;
 let server: Server = null;
-
-const testCategory: ICategory = {
-  name: "Science fiction",
-  seoUrl: "sci-fi"
-};
-
-const testAuthor: IAuthor = {
-  name: "John Doe",
-  bornAt: new Date(),
-  diedAt: new Date(),
-  imageUrl: "https://example.com/author.jpg",
-  biography: "A great author."
-};
-
-const testBook: IBook = {
-  title: "A Book",
-  summary: "The book's summary...",
-  pages: 100,
-  available: true,
-  coverImage: "https://example.com/book-cover.jpg",
-  datePublished: new Date(),
-  featured: false,
-  freeDownload: false,
-  isbn: "9783161484100",
-  price: 6.78
-};
-
-async function createTestCategory() {
-  return categoryService.create(testCategory);
-}
-
-async function createTestAuthor() {
-  return authorService.create(testAuthor);
-}
-
-async function createTestBook() {
-  const [category, author] = await Promise.all([
-    createTestCategory(),
-    createTestAuthor()
-  ]);
-
-  const book: IBook = {
-    ...testBook,
-    authorId: author.id,
-    categoryId: category.id
-  };
-
-  return bookService.create(book);
-}
 
 beforeAll(async done => {
   [server, api] = await startTestServer();

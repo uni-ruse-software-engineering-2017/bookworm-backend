@@ -14,6 +14,19 @@ import ApplicationUser from "./ApplicationUser";
 import Book from "./Book";
 import BookPurchase from "./BookPurchase";
 
+interface IPurchaseSnapshot {
+  author: {
+    id: string;
+    name: string;
+  };
+  available: boolean;
+  title: string;
+  coverImage: string;
+  id: string;
+  price: string;
+  bookId: string;
+}
+
 @Table({ tableName: "purchase" })
 export default class Purchase extends Model<Purchase> {
   @PrimaryKey
@@ -35,7 +48,7 @@ export default class Purchase extends Model<Purchase> {
   isPaid: boolean;
 
   @Column(DataType.JSON)
-  snapshot: any[];
+  snapshot: IPurchaseSnapshot[];
 
   /**
    * Foreign key - User

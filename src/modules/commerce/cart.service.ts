@@ -1,4 +1,4 @@
-import { badData, notFound } from "boom";
+import { badData, badRequest, notFound } from "boom";
 import Author from "../../models/Author";
 import Book from "../../models/Book";
 import BookPurchase, { IBookPurchase } from "../../models/BookPurchase";
@@ -69,6 +69,11 @@ class CartService implements ICartService {
   async addItem(userId: string, bookId: string) {
     try {
       const user = await userService.getById(userId);
+
+      if (!user) {
+        throw badRequest("User does not exist.");
+      }
+
       const purchasedBookIds = await user.getPurchasedBooks();
 
       if (purchasedBookIds.has(bookId)) {
@@ -138,6 +143,7 @@ class CartService implements ICartService {
   }
 
   async checkout(userId: string): Promise<any> {
+    // TODO: integrate with a payment gateway API
     const cartItems = await this.getItems(userId);
 
     if (!cartItems.items.length) {

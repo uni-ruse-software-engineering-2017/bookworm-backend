@@ -15,6 +15,9 @@ const dbConfig: { [key: string]: ISequelizeConfig } = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10),
     dialect: "postgres"
+  },
+  get development() {
+    return this.production;
   }
 };
 

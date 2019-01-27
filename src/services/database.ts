@@ -1,7 +1,9 @@
 import { ISequelizeConfig, Sequelize } from "sequelize-typescript";
 const dbConfig = require("./../config/db-config");
 
-const conf = dbConfig[process.env.NODE_ENV || "production"] as ISequelizeConfig;
+const conf = dbConfig[
+  process.env.NODE_ENV || "development"
+] as ISequelizeConfig;
 
 const database = new Sequelize({
   ...conf,

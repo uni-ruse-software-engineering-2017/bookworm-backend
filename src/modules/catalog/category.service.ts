@@ -16,6 +16,13 @@ class CategoryService {
       }
 
       const category = await Category.create(categoryData);
+
+      // prevent endless loops in the hierarchy
+      if (category.parentId === category.id) {
+        category.parentId = null;
+        return await category.save();
+      }
+
       return category;
     } catch (error) {
       throw badData("Validation failed.", error.errors || error);
@@ -41,6 +48,10 @@ class CategoryService {
 
     if (!category) {
       throw notFound("Category not found.");
+    }
+
+    if (category.id === data.parentId) {
+      throw badData(`Category's parent cannot be the category itself.`);
     }
 
     // nothing to update

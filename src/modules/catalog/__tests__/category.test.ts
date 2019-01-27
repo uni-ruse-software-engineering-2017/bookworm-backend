@@ -239,6 +239,19 @@ describe("Category resource", () => {
       expect(updatedCategory.parent).toBeNull();
     });
 
+    it("should not be able to set the parent of the category as the category itself", async () => {
+      const category = await categoryService.create(testCategory);
+
+      const response = await api
+        .patch(`${ENDPOINT}/${category.id}`)
+        .set("Authorization", `Bearer ${adminJwt}`)
+        .send({
+          parentId: category.id
+        });
+
+      expect(response.status).toEqual(UNPROCESSABLE_ENTITY);
+    });
+
     it("should respond with status 404 when a category does not exist", async () => {
       const response = await api
         .patch(`${ENDPOINT}/42`)

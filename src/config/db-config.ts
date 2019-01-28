@@ -1,3 +1,5 @@
+require("dotenv-override").config({ override: true });
+
 import { ISequelizeConfig } from "sequelize-typescript";
 
 const dbConfig: { [key: string]: ISequelizeConfig } = {

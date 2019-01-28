@@ -15,9 +15,10 @@ Postgres and Redis should be run as services in order for the web application to
 
 ## How to install
 
-1. `$ git clone git@github.com:uni-ruse-software-engineering-2017/bookworm-backend.git`
-2. `$ npm i`
-3. Place the `.env` file which I gave you in the root folder of the project. This file contains the environmental variables which are required for connecting to the database and Goodreads' API.
+1. `$ git clone git@github.com:uni-ruse-software-engineering-2017/bookworm-backend.git` - download the project
+2. `$ cd bookworm-backend` - move into its directory
+3. `$ npm i` - install the dependencies
+4. Place the `.env` file which I gave you in the root folder of the project. This file contains the environmental variables which are required for connecting to the database and the Goodreads' API.
 
 ## How to run
 
@@ -30,7 +31,12 @@ The project is developed with [TypeScript](https://www.typescriptlang.org). This
 The steps for running the server are as follows:
 
 1. `$ npm run build` - this runs the compiler and produces JavaScript code which will be run by Node.js
-2. `$ npm start` - this will start your web server on port 3000 You can now dispatch HTTP requests to the REST API.
+2. Open your favourite Postgres client and create a database called `bookworm`.
+3. `$ npm run sync-db` - this will create the database tables form the SequelizeJS models - **all your tables will be dropped and re-created - you will lose all the records from the database if you have any!**
+4. `$ npm run seed` - this will insert test data into the database
+5. `$ npm start` - this will start your web server on port 3000. You can now dispatch HTTP requests to the REST API.
+
+**Steps 2. and 3. are required only the first time you start the project!**
 
 If you want the server to restart automatically and see your changes instantly while you are developing,
 you can use the command:

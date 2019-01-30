@@ -14,8 +14,15 @@ const TEN_MB = 10485760;
 const BookController = new Router();
 
 BookController.get("/", withPagination, async ctx => {
-  const books = await bookService.getAll(ctx.state.pagination);
-  ctx.body = books;
+  if (ctx.query["category_id"]) {
+    ctx.body = await bookService.getAllByCategoryId(
+      ctx.query["category_id"] as string,
+      ctx.state.pagination
+    );
+  } else {
+    ctx.body = await bookService.getAll(ctx.state.pagination);
+  }
+
   return ctx;
 });
 

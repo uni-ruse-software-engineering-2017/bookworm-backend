@@ -14,6 +14,22 @@ export interface IBook {
   categoryId?: string;
 }
 
+export interface IBookListItem {
+  readonly id: string;
+  title: string;
+  price: number;
+  coverImage: string;
+  available: boolean;
+  featured: boolean;
+  author: IAuthorListItem;
+  category: ICategory;
+}
+
+export interface IBookDetailed extends IBook {
+  author: IAuthorListItem;
+  category: ICategory;
+}
+
 export interface IAuthor {
   readonly id?: string;
   name: string;
@@ -22,6 +38,11 @@ export interface IAuthor {
   bornAt: Date;
   diedAt?: Date;
   books?: IBook[];
+}
+
+export interface IAuthorListItem {
+  readonly id?: string;
+  name: string;
 }
 
 export interface ICategory {

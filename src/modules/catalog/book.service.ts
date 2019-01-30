@@ -1,11 +1,31 @@
 import { badData, notFound } from "boom";
 import Book from "../../models/Book";
-import paginate from "../../services/paginate";
-import { IBook } from "./catalog.contracts";
+import paginate, {
+  IPaginatedResource,
+  IPaginationQuery
+} from "../../services/paginate";
+import { IBook, IBookListItem } from "./catalog.contracts";
 
 class BookService {
   async getAll({ page = 1, pageSize = 25 } = {}) {
-    return paginate(Book, { page, pageSize, scope: "listItem" });
+    const books: IPaginatedResource<IBookListItem> = await paginate(Book, {
+      page,
+      pageSize,
+      scope: "listItem"
+    });
+    return books;
+  }
+
+  async getAllByCategoryId(categoryId: string, query: IPaginationQuery<Book>) {
+    const books: IPaginatedResource<IBookListItem> = await paginate(Book, {
+      ...query,
+      where: {
+        categoryId: categoryId
+      },
+      scope: "listItem"
+    });
+
+    return books;
   }
 
   async getById(bookId = "") {

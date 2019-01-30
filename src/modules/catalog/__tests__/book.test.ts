@@ -18,7 +18,7 @@ import {
 } from "../../../util/test-helpers";
 import authorService from "../author.service";
 import bookService from "../book.service";
-import { IAuthor, IBook, ICategory } from "../catalog.contracts";
+import { IAuthor, IBook, IBookListItem, ICategory } from "../catalog.contracts";
 import categoryService from "../category.service";
 
 const API_URL = "/api";
@@ -178,6 +178,48 @@ describe("Book resource", () => {
       responseBody.items.forEach(book => {
         expect(book).toContainAllKeys(listViewScopeKeys);
       });
+    });
+
+    it("should list all books from a given category", async () => {
+      await createTestBook();
+
+      const anotherCategory = await categoryService.create({ name: "another" });
+      const anotherAuthor = await authorService.create({
+        biography: "none",
+        bornAt: new Date(),
+        name: "Another Author"
+      });
+      const anotherBook = await bookService.create({
+        datePublished: new Date(),
+        isbn: "978316148499",
+        pages: 100,
+        title: "Another book",
+        authorId: anotherAuthor.id,
+        categoryId: anotherCategory.id
+      });
+
+      const response = await api.get(ENDPOINT).query({
+        category_id: anotherBook.categoryId
+      });
+
+      expect(response.status).toEqual(OK);
+
+      const responseBody: IPaginatedResource<IBookListItem> = response.body;
+
+      expect(responseBody.items).toHaveLength(1);
+      expect(responseBody.itemsCount).toEqual(1);
+      expect(responseBody.page).toEqual(1);
+      expect(responseBody.pageSize).toEqual(25);
+
+      // only the book from the chosen category should be listed
+      const b = responseBody.items[0];
+
+      expect(b.id).toEqual(anotherBook.id);
+      expect(b.title).toEqual(anotherBook.title);
+      expect(b.author.id).toEqual(anotherBook.authorId);
+      expect(b.author.name).toEqual(anotherBook.author.name);
+      expect(b.category.name).toEqual(anotherBook.category.name);
+      expect(b.category.seoUrl).toEqual(anotherBook.category.seoUrl);
     });
   });
 

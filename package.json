@@ -56,6 +56,7 @@
     "typescript": "^3.2.2"
   },
   "dependencies": {
+    "@koa/cors": "^2.2.3",
     "axios": "^0.18.0",
     "bcrypt": "^3.0.2",
     "boom": "^7.3.0",

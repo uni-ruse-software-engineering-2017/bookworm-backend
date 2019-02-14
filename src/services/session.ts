@@ -4,9 +4,16 @@ import * as uuid from "uuid";
 import { IApplicationUserData } from "../modules/user/user.contracts";
 import { redisClient } from "./redis-client";
 
+export interface IUserSession extends IApplicationUserData {
+  sessionId: string;
+}
+
 const pkg = require("./../../package.json");
 
 const APP = pkg.name;
+
+export const SESSION_DURATION_IN_SECS =
+  ms(process.env.SESSION_DURATION || "1d") / 1000;
 
 class Session {
   constructor(private redisClient: Redis) {}
@@ -24,14 +31,14 @@ class Session {
 
     await this.redisClient.setex(
       `${APP}:session:${sessionId}`,
-      ms(process.env.SESSION_DURATION || "1d") / 1000,
+      SESSION_DURATION_IN_SECS,
       userSession
     );
 
     return {
       sessionId,
       ...user
-    };
+    } as IUserSession;
   }
 
   async getById(sessionId: string) {
@@ -52,7 +59,7 @@ class Session {
     // the session should automatically expire after a given time
     return this.redisClient.setex(
       `${APP}:session:${sessionId}`,
-      parseInt(process.env.SESSION_DURATION, 10),
+      SESSION_DURATION_IN_SECS,
       JSON.stringify(user, null, 2)
     );
   }

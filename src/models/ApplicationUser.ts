@@ -8,6 +8,7 @@ import {
   DataType,
   Default,
   HasMany,
+  IsEmail,
   Length,
   Model,
   PrimaryKey,
@@ -30,6 +31,8 @@ export default class ApplicationUser extends Model<ApplicationUser> {
   id: string;
 
   @Unique
+  @AllowNull(false)
+  @IsEmail
   @Column
   email: string;
 

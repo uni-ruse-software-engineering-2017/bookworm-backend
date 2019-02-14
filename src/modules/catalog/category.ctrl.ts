@@ -16,7 +16,7 @@ CategoryController.get("/", withPagination, async ctx => {
   return ctx;
 });
 
-CategoryController.get("/:id", async ctx => {
+CategoryController.get("/:id", async function(ctx) {
   const { id } = ctx.params;
   const category = await categoryService.getById(id);
 

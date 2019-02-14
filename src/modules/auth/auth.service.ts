@@ -11,6 +11,10 @@ class AuthService {
       throw badData("Password is required.");
     }
 
+    if (!userData.email) {
+      throw badData("Email address is required.");
+    }
+
     try {
       const userObj = ApplicationUser.build({
         ...userData,
@@ -52,6 +56,10 @@ class AuthService {
     const userSession = await sessionService.create(user.toJSON());
 
     return userSession;
+  }
+
+  async logout(sessionId: string) {
+    await sessionService.delete(sessionId);
   }
 }
 

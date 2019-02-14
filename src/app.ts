@@ -14,7 +14,8 @@ const app = new Koa();
 app.use(
   cors({
     origin: process.env.CORS_ALLOWED_ORIGINS || "*",
-    methods: "GET,HEAD,PUT,POST,DELETE,PATCH"
+    methods: "GET,HEAD,PUT,POST,DELETE,PATCH",
+    credentials: true
   })
 );
 

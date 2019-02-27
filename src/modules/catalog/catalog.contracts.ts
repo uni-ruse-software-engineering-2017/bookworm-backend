@@ -95,3 +95,10 @@ export interface IGoodreadsAuthorResponse {
   died_at: string;
   goodreads_author: string;
 }
+
+export type ITree<T> = ITreeNode<T>[];
+
+export interface ITreeNode<T> {
+  value: T;
+  children: ITreeNode<T>[];
+}

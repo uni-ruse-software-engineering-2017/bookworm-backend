@@ -2,7 +2,7 @@ import { badData, notFound } from "boom";
 import slugify from "slugify";
 import Category from "../../models/Category";
 import paginate from "../../services/paginate";
-import { ICategory } from "./catalog.contracts";
+import { ICategory, ITree, ITreeNode } from "./catalog.contracts";
 
 class CategoryService {
   async getAll({ page = 1, pageSize = 25 } = {}) {
@@ -87,6 +87,72 @@ class CategoryService {
     }
 
     return null;
+  }
+
+  /**
+   * Returns all categories as a tree structure.
+   */
+  async getTreeView(): Promise<ITree<ICategory>> {
+    const rootCategories = await this.getRootCategories();
+
+    // start from each top-level category
+    // and build the tree structure downwards
+    const childrenSubTrees = await Promise.all(
+      rootCategories.map(rootCategory => this.buildCategoryTree(rootCategory))
+    );
+
+    // match the built sub-trees with the top-level categories
+    const tree: ITree<ICategory> = rootCategories.map(rc => {
+      const node: ITreeNode<ICategory> = {
+        value: rc,
+        children: childrenSubTrees.find(child => child.value.id === rc.id)
+          .children
+      };
+      return node;
+    });
+
+    return tree;
+  }
+
+  /**
+   * Lists all top-level categories (which don't have a parent).
+   */
+  async getRootCategories() {
+    return Category.findAll({
+      where: {
+        parentId: null
+      }
+    });
+  }
+
+  /**
+   * Recursive function which builds up the category tree
+   * from a starting category downwards.
+   *
+   * @param category - current category
+   */
+  private async buildCategoryTree(
+    category: ICategory
+  ): Promise<ITreeNode<ICategory>> {
+    const childrenCategories = await Category.findAll({
+      where: {
+        parentId: category.id
+      }
+    });
+
+    const children: ITreeNode<ICategory>[] = await Promise.all(
+      childrenCategories.map(childCategory =>
+        // call recursivelly
+        this.buildCategoryTree(childCategory)
+      )
+    );
+
+    const node: ITreeNode<ICategory> = {
+      value: category,
+      children: children
+    };
+
+    return node;
   }
 }
 

@@ -16,6 +16,13 @@ CategoryController.get("/", withPagination, async ctx => {
   return ctx;
 });
 
+CategoryController.get("/tree", withPagination, async ctx => {
+  const categoryTree = await categoryService.getTreeView();
+
+  ctx.body = categoryTree;
+  return ctx;
+});
+
 CategoryController.get("/:id", async function(ctx) {
   const { id } = ctx.params;
   const category = await categoryService.getById(id);

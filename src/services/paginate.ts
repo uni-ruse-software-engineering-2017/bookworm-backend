@@ -23,20 +23,29 @@ export default async function paginate<T extends Model<T>>(
   DBModel: new () => T,
   pagination: IPaginationQuery<T>
 ) {
-  pagination.pageSize = pagination.pageSize > 0 ? pagination.pageSize : 25;
+  pagination.pageSize = pagination.pageSize || 25;
   pagination.page = pagination.page > 0 ? pagination.page : 1;
 
   const { pageSize, page, where, scope, include } = pagination;
-  const result = await DBModel[scope ? "scope" : "unscoped"](scope)[
-    "findAndCountAll"
-  ]({
+
+  const filter = {
     where: where || {},
     limit: pageSize,
     offset: (page - 1) * pageSize,
     include: include || []
-  });
+  };
 
-  const pageCount = Math.ceil(result.count / pageSize) || 1;
+  // when 'pageSize' is -1, return all records in the database
+  if (pageSize < 0) {
+    filter.limit = undefined;
+    filter.offset = undefined;
+  }
+
+  const result = await DBModel[scope ? "scope" : "unscoped"](scope)[
+    "findAndCountAll"
+  ](filter);
+
+  const pageCount = pageSize > 0 ? Math.ceil(result.count / pageSize) || 1 : 1;
   const items = result.rows as T[];
   const itemsCount = items.length;
 

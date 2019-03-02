@@ -1,9 +1,10 @@
 import httpClient from "../../services/http-client";
 import logger from "../../services/logger";
 import { xmlToJSON } from "../../services/xml-parser";
+import authorService from "./author.service";
 import {
   IAuthor,
-  IBook,
+  IBookDetailed,
   IGoodreadsAuthorResponse,
   IGoodreadsAuthorSearchResponse
 } from "./catalog.contracts";
@@ -55,7 +56,12 @@ class Goodreads {
     const jsonResponse = await this.xmlToObj(response.data);
     const goodreadsBook = jsonResponse.book;
 
-    const book: IBook = {
+    const goodreadsAuthorResponse = jsonResponse.book.authors.author;
+    const foundOrCreatedAuthor = await this.findOrCreateAuthor(
+      goodreadsAuthorResponse
+    );
+
+    const book: IBookDetailed = {
       title: goodreadsBook.title,
       pages: goodreadsBook.num_pages,
       isbn: goodreadsBook.isbn13 || goodreadsBook.isbn,
@@ -69,7 +75,9 @@ class Goodreads {
       featured: false,
       freeDownload: false,
       price: 0,
-      summary: goodreadsBook.description
+      summary: goodreadsBook.description,
+      author: foundOrCreatedAuthor,
+      category: null
     };
 
     return book;
@@ -128,6 +136,39 @@ class Goodreads {
   private async xmlToObj(xmlResponse: string) {
     const obj: any = await xmlToJSON(xmlResponse);
     return obj.GoodreadsResponse || {};
+  }
+
+  /**
+   * Tries to find an author in our database and if they don't exist,
+   * creates a new record with the data received from Goodreads.
+   *
+   * @param goodreadsAuthorResponse - Goodreads authors object
+   */
+  private async findOrCreateAuthor(goodreadsAuthorResponse: object | any[]) {
+    // if there is more than one author, the 'authors' field will be an array
+    const goodreadsAuthor = Array.isArray(goodreadsAuthorResponse)
+      ? goodreadsAuthorResponse[0]
+      : goodreadsAuthorResponse;
+
+    const existingAuthor = await authorService.getByName(
+      goodreadsAuthor ? goodreadsAuthor.name : ""
+    );
+    let automaticallyCreatedAuthor = null;
+
+    if (!existingAuthor && goodreadsAuthor) {
+      try {
+        const goodreadsAuthorDetailed = await this.getAuthorById(
+          goodreadsAuthor.id
+        );
+        automaticallyCreatedAuthor = await authorService.create(
+          goodreadsAuthorDetailed
+        );
+
+        return automaticallyCreatedAuthor;
+      } catch (error) {
+        automaticallyCreatedAuthor = null;
+      }
+    }
   }
 }
 

@@ -1,4 +1,5 @@
 import { badData, notFound } from "boom";
+import { Op } from "sequelize";
 import Author from "../../models/Author";
 import paginate from "../../services/paginate";
 import { IAuthor } from "./catalog.contracts";
@@ -23,6 +24,17 @@ class AuthorService {
 
   async getById(id: string): Promise<Author | null> {
     const author = await Author.scope("detailed").findByPrimary(id);
+    return author;
+  }
+
+  async getByName(authorName: string): Promise<Author | null> {
+    const author = await Author.scope("detailed").findOne({
+      where: {
+        name: {
+          [Op.like]: authorName
+        }
+      }
+    });
     return author;
   }
 

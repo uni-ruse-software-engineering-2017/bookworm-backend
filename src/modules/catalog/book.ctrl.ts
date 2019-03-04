@@ -4,6 +4,8 @@ import * as koaBody from "koa-body";
 import * as Router from "koa-router";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
+import Book from "../../models/Book";
+import { IPaginationQuery, searchByColumn } from "../../services/paginate";
 import bookService from "./book.service";
 import { IBook } from "./catalog.contracts";
 import contentService from "./content.service";
@@ -20,7 +22,13 @@ BookController.get("/", withPagination, async ctx => {
       ctx.state.pagination
     );
   } else {
-    ctx.body = await bookService.getAll(ctx.state.pagination);
+    const query: IPaginationQuery<Book> = ctx.query["q"]
+      ? {
+          ...ctx.state.pagination,
+          where: searchByColumn<Book>("title", ctx.query["q"])
+        }
+      : ctx.state.pagination;
+    ctx.body = await bookService.getAll(query);
   }
 
   return ctx;

@@ -1,5 +1,5 @@
 import * as Boom from "boom";
-import { WhereOptions } from "sequelize";
+import { Op, WhereOptions } from "sequelize";
 import { Model } from "sequelize-typescript";
 
 export interface IPaginatedResource<T> {
@@ -61,4 +61,15 @@ export default async function paginate<T extends Model<T>>(
     itemsCount,
     total: result.count
   } as IPaginatedResource<T>;
+}
+
+export function searchByColumn<Entity>(
+  columnName: keyof Entity,
+  value: string = ""
+) {
+  return {
+    [columnName]: {
+      [process.env.NODE_ENV === "test" ? Op.like : Op.iLike]: `%${value}%`
+    }
+  };
 }

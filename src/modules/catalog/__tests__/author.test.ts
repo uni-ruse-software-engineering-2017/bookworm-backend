@@ -106,6 +106,56 @@ describe("Author resource", () => {
         ]);
       });
     });
+
+    it("should filter authors by name", async () => {
+      const names = [
+        "John Smith",
+        "Johnny Walker",
+        "Isaak Asimov",
+        "Jane Doe",
+        "Allan John",
+        "Marry Jane"
+      ];
+
+      const authorsToInsert: IAuthor[] = names.map((name, i) => {
+        return {
+          biography: "Biography...",
+          bornAt: new Date(),
+          diedAt: null,
+          imageUrl: "https://example.com/image.jpg",
+          name: name
+        };
+      });
+
+      await Promise.all(
+        authorsToInsert.map(author => authorService.create(author))
+      );
+
+      // Warning: `ILIKE` operator is missing in SQLite so the search here is
+      // case sensitve
+      const nameToSearchFor = "John";
+      const response = await api.get(ENDPOINT).query({
+        page_size: 10,
+        page: 1,
+        q: nameToSearchFor
+      });
+
+      expect(response.status).toEqual(OK);
+
+      const responseBody: IPaginatedResource<IAuthor> = response.body;
+
+      expect(responseBody.items).toHaveLength(3);
+      expect(responseBody.itemsCount).toEqual(3);
+      expect(responseBody.page).toEqual(1);
+      expect(responseBody.pageSize).toEqual(10);
+      expect(responseBody.total).toEqual(3);
+
+      responseBody.items.forEach(author => {
+        expect(author.name.toLowerCase()).toContain(
+          nameToSearchFor.toLowerCase()
+        );
+      });
+    });
   });
 
   describe(`GET ${ENDPOINT}/:authorId`, () => {

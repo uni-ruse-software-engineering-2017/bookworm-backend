@@ -4,13 +4,23 @@ import * as Router from "koa-router";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
 import Author from "../../models/Author";
+import { IPaginationQuery, searchByColumn } from "../../services/paginate";
 import authorService from "./author.service";
 import { IAuthor } from "./catalog.contracts";
 
 const AuthorController = new Router();
 
 AuthorController.get("/", withPagination, async ctx => {
-  const authors = await authorService.getAll(ctx.state.pagination);
+  const authorNameQuery = ctx.query.q || "";
+
+  const query: IPaginationQuery<Author> = authorNameQuery
+    ? {
+        ...ctx.state.pagination,
+        where: searchByColumn<Author>("name", authorNameQuery)
+      }
+    : ctx.state.pagination;
+
+  const authors = await authorService.getAll(query);
   ctx.body = authors;
   return ctx;
 });

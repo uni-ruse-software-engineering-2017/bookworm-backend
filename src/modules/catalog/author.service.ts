@@ -1,12 +1,12 @@
 import { badData, notFound } from "boom";
 import { Op } from "sequelize";
 import Author from "../../models/Author";
-import paginate from "../../services/paginate";
+import paginate, { IPaginationQuery } from "../../services/paginate";
 import { IAuthor } from "./catalog.contracts";
 
 class AuthorService {
-  async getAll({ page = 1, pageSize = 25 } = {}) {
-    return paginate(Author, { page, pageSize });
+  async getAll(query: IPaginationQuery<Author>) {
+    return paginate(Author, query);
   }
 
   async create(authorData: IAuthor) {

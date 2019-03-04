@@ -7,10 +7,9 @@ import paginate, {
 import { IBook, IBookListItem } from "./catalog.contracts";
 
 class BookService {
-  async getAll({ page = 1, pageSize = 25 } = {}) {
+  async getAll(query: IPaginationQuery<Book>) {
     const books: IPaginatedResource<IBookListItem> = await paginate(Book, {
-      page,
-      pageSize,
+      ...query,
       scope: "listItem"
     });
     return books;

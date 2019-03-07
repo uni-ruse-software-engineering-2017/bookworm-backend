@@ -3,11 +3,16 @@ require("dotenv-override").config({ override: true });
 import * as cors from "@koa/cors";
 import * as Koa from "koa";
 import * as bodyParser from "koa-bodyparser";
+import * as mount from "koa-mount";
+import * as serveStatic from "koa-static";
+import { join } from "path";
 import { errorHandler } from "./middleware/error-handler";
 import withSession from "./middleware/with-session";
 import RestAPI from "./rest-api";
 import database from "./services/database";
 import logger from "./services/logger";
+
+const STATIC_FILES_PATH = join(__dirname, "/uploads");
 
 const app = new Koa();
 
@@ -24,6 +29,8 @@ app.use(errorHandler);
 app.use(withSession);
 
 app.use(bodyParser({ enableTypes: ["json"] }));
+
+app.use(mount("/files", serveStatic(STATIC_FILES_PATH)));
 
 app.use(RestAPI.routes());
 

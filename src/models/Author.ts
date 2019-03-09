@@ -47,6 +47,7 @@ export default class Author extends Model<Author> {
   @Column({ field: "image_url", type: DataType.STRING })
   imageUrl: string;
 
+  @AllowNull
   @IsDate
   @Column({ field: "born_at", type: DataType.DATE })
   bornAt: Date;

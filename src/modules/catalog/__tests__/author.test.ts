@@ -269,6 +269,23 @@ describe("Author resource", () => {
       expect(responseBody.imageUrl).toEqual(testAuthor.imageUrl);
     });
 
+    it("should create a new author without providing born at and died at dates", async () => {
+      const author = { ...testAuthor };
+      author.bornAt = null;
+      author.diedAt = null;
+
+      const response = await api
+        .post(ENDPOINT)
+        .set("Authorization", `Bearer ${adminJwt}`)
+        .send(author);
+
+      const responseBody: IAuthor = response.body;
+
+      expect(response.status).toEqual(CREATED);
+      expect(responseBody.bornAt).toBeNull();
+      expect(responseBody.diedAt).toBeNull();
+    });
+
     it("should not create a new author with an existing author's name", async () => {
       await api
         .post(ENDPOINT)

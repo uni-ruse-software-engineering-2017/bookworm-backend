@@ -125,8 +125,12 @@ class Goodreads {
     const author: IAuthor = {
       name: goodreadsAuthor.name,
       biography: goodreadsAuthor.about,
-      bornAt: new Date(goodreadsAuthor.born_at),
-      diedAt: new Date(goodreadsAuthor.died_at),
+      bornAt: goodreadsAuthor.born_at
+        ? new Date(goodreadsAuthor.born_at)
+        : null,
+      diedAt: goodreadsAuthor.died_at
+        ? new Date(goodreadsAuthor.died_at)
+        : null,
       imageUrl: goodreadsAuthor.image_url || goodreadsAuthor.large_image_url
     };
 

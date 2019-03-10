@@ -19,13 +19,16 @@ UserController.get("/", withRole("admin"), withPagination, async ctx => {
 
 UserController.get("/profile", async ctx => {
   const profile = ctx.state.session as IUserProfile;
+  const user = await userService.getById(profile.id);
+  const purchasedBooks = await user.getPurchasedBooks();
 
-  // exclude confidential data
   ctx.body = {
+    id: profile.id,
     email: profile.email,
     firstName: profile.firstName,
     lastName: profile.lastName,
-    role: profile.role
+    role: profile.role,
+    ownedBooks: [...purchasedBooks]
   } as Partial<IUserProfile>;
 
   return ctx;

@@ -128,10 +128,12 @@ describe("User resource", () => {
 
       expect(response.status).toEqual(OK);
       expect(response.body).toContainAllKeys([
+        "id",
         "email",
         "firstName",
         "lastName",
-        "role"
+        "role",
+        "ownedBooks"
       ]);
 
       const userProfile: IUserProfile = response.body;
@@ -140,6 +142,7 @@ describe("User resource", () => {
       expect(userProfile.firstName).toEqual(customerUser.firstName);
       expect(userProfile.lastName).toEqual(customerUser.lastName);
       expect(userProfile.role).toEqual(customerUser.role);
+      expect(userProfile.ownedBooks).toBeArray();
     });
 
     it(`should only allow authorized requests`, async () => {

@@ -16,8 +16,7 @@ import {
   Unique,
   UpdatedAt
 } from "sequelize-typescript";
-import Book from "./Book";
-import Purchase from "./Purchase";
+import Purchase, { IPurchaseSnapshot } from "./Purchase";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -85,7 +84,9 @@ export default class ApplicationUser extends Model<ApplicationUser> {
         .reduce((prev, curr) => {
           return prev.concat(curr.snapshot || []);
         }, [])
-        .map((book: Book) => book.id)
+        .map((snapshot: IPurchaseSnapshot) => {
+          return snapshot.bookId;
+        })
     );
 
     return bookIds;

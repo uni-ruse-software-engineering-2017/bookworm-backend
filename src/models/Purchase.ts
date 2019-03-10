@@ -14,7 +14,7 @@ import ApplicationUser from "./ApplicationUser";
 import Book from "./Book";
 import BookPurchase from "./BookPurchase";
 
-interface IPurchaseSnapshot {
+export interface IPurchaseSnapshot {
   author: {
     id: string;
     name: string;

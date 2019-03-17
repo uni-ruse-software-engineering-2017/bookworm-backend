@@ -23,8 +23,8 @@ class ContentService {
   async getById(contentId: string) {
     const bookContent = await ContentFile.findByPrimary(contentId);
 
-    if (bookContent) {
-      throw notFound("Content file not found.");
+    if (!bookContent) {
+      throw notFound(`Content file with ID ${contentId} not found.`);
     }
 
     return bookContent;

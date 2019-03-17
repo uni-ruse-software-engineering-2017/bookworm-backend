@@ -1,5 +1,11 @@
 import { File } from "formidable";
-import { createReadStream, createWriteStream, ensureDir } from "fs-extra";
+import {
+  createReadStream,
+  createWriteStream,
+  ensureDir,
+  ensureFile,
+  remove
+} from "fs-extra";
 import { join } from "path";
 import slugify from "slugify";
 import { rootPath } from "../../root-path";
@@ -37,6 +43,13 @@ class FileService {
         return reject(error);
       });
     });
+  }
+
+  async delete(fileUrl: string) {
+    const filePath = join(uploadsDir, fileUrl);
+
+    await ensureFile(filePath);
+    await remove(filePath);
   }
 
   getExtension(fileName: string = "") {

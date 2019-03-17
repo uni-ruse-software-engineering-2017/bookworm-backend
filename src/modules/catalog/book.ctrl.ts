@@ -110,4 +110,33 @@ BookController.post(
   }
 );
 
+BookController.delete(
+  "/:id/files/:fileId",
+  withRole("admin"),
+  async (ctx, next) => {
+    await bookService.getById(ctx.params.id);
+
+    const fileId: string = ctx.params.fileId;
+
+    try {
+      const content = await contentService.getById(fileId);
+
+      // delete it from the file system
+      await fileService.delete(content.url);
+
+      // then delete it from the database
+      content.destroy();
+
+      ctx.body = content.toJSON();
+      return ctx;
+    } catch (error) {
+      if (isBoom(error)) {
+        throw error;
+      } else {
+        throw badImplementation("File delete failed.", error);
+      }
+    }
+  }
+);
+
 export default BookController;

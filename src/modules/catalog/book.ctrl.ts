@@ -2,10 +2,13 @@ import { badData, badImplementation, isBoom } from "boom";
 import * as HttpStatus from "http-status-codes";
 import * as koaBody from "koa-body";
 import * as Router from "koa-router";
+import { Op } from "sequelize";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
 import Book from "../../models/Book";
 import { IPaginationQuery, searchByColumn } from "../../services/paginate";
+import { IUserProfile } from "../user/user.contracts";
+import userService from "../user/user.service";
 import bookService from "./book.service";
 import { IBook } from "./catalog.contracts";
 import contentService from "./content.service";
@@ -30,6 +33,35 @@ BookController.get("/", withPagination, async ctx => {
       : ctx.state.pagination;
     ctx.body = await bookService.getAll(query);
   }
+
+  return ctx;
+});
+
+BookController.get(
+  "/purchased",
+  withRole("customer"),
+  withPagination,
+  async ctx => {
+    const profile = ctx.state.session as IUserProfile;
+    const user = await userService.getById(profile.id);
+    const purchasedBooks = await user.getPurchasedBooks();
+    const pagination: IPaginationQuery<Book> = ctx.state.pagination;
+
+    ctx.body = await bookService.getAll({
+      ...pagination,
+      where: {
+        id: {
+          [Op.in]: [...purchasedBooks]
+        }
+      }
+    });
+
+    return ctx;
+  }
+);
+
+BookController.get("/featured", withPagination, async ctx => {
+  ctx.body = await bookService.getFeaturedBooks();
 
   return ctx;
 });

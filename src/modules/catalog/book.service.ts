@@ -1,5 +1,7 @@
 import { badData, notFound } from "boom";
+import { Sequelize } from "sequelize-typescript";
 import Book from "../../models/Book";
+import logger from "../../services/logger";
 import paginate, {
   IPaginatedResource,
   IPaginationQuery
@@ -28,7 +30,12 @@ class BookService {
   }
 
   async getById(bookId = "") {
-    const book = await Book.scope("detailed").findByPrimary(bookId);
+    const book = await Book.scope("detailed")
+      .findByPrimary(bookId)
+      .catch(error => {
+        logger.error(error);
+        Promise.resolve(null);
+      });
 
     if (!book) {
       throw notFound("Book not found.");
@@ -80,6 +87,18 @@ class BookService {
     } catch (error) {
       throw badData("Validation failed.", error);
     }
+  }
+
+  async getFeaturedBooks() {
+    const featuredBooks = await Book.scope("listItem").findAll({
+      where: {
+        featured: true
+      },
+      limit: 10,
+      order: Sequelize.literal("random()")
+    });
+
+    return featuredBooks;
   }
 }
 

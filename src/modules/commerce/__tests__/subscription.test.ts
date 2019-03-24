@@ -134,9 +134,9 @@ describe("Subscription plan resource", () => {
       const premiumPlan = (await createTestPlans())[0];
 
       const planUpdates: Partial<ISubscriptionPlan> = {
-        name: "Free",
-        booksPerMonth: 999,
-        pricePerMonth: 0
+        name: "Ultra Unlimited",
+        booksPerMonth: 9999,
+        pricePerMonth: 99.99
       };
 
       const response = await api

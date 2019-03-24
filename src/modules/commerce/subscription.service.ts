@@ -1,4 +1,4 @@
-import { notFound } from "boom";
+import { badData, notFound } from "boom";
 import SubscriptionPlan from "../../models/SubscriptionPlan";
 import { IPaginatedResource, IPaginationQuery } from "../../services/paginate";
 import { IUserProfile } from "../user/user.contracts";
@@ -24,8 +24,21 @@ export interface ISubscriptionService {
 
 class SubscriptionService implements ISubscriptionService {
   async createPlan(planData: ISubscriptionPlan): Promise<ISubscriptionPlan> {
-    const plan = await SubscriptionPlan.create(planData);
-    return plan;
+    planData.booksPerMonth = Math.round(planData.booksPerMonth);
+
+    try {
+      const plan = await SubscriptionPlan.create(planData, { validate: true });
+
+      return plan;
+    } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        throw badData("Subscription plan with that name already exists");
+      } else if (error.name === "SequelizeValidationError") {
+        throw badData(error);
+      }
+
+      throw error;
+    }
   }
 
   async editPlan(
@@ -49,12 +62,25 @@ class SubscriptionService implements ISubscriptionService {
       plan.pricePerMonth = updates.pricePerMonth;
     }
 
-    const updatedPlan = await plan.save();
-    return updatedPlan;
+    try {
+      const updatedPlan = await plan.save();
+      return updatedPlan;
+    } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        throw badData("Subscription plan with that name already exists");
+      } else if (error.name === "SequelizeValidationError") {
+        throw badData(error);
+      }
+
+      throw error;
+    }
   }
 
   async getPlans(): Promise<ISubscriptionPlan[]> {
-    const plans = await SubscriptionPlan.findAll();
+    const plans = await SubscriptionPlan.findAll({
+      order: [["price_per_month", "ASC"]]
+    });
+
     return plans;
   }
 

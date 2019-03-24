@@ -19,18 +19,19 @@ const TEN_MB = 10485760;
 const BookController = new Router();
 
 BookController.get("/", withPagination, async ctx => {
+  const query: IPaginationQuery<Book> = ctx.query["q"]
+    ? {
+        ...ctx.state.pagination,
+        where: searchByColumn<Book>("title", ctx.query["q"])
+      }
+    : ctx.state.pagination;
+
   if (ctx.query["category_id"]) {
     ctx.body = await bookService.getAllByCategoryId(
       ctx.query["category_id"] as string,
-      ctx.state.pagination
+      query
     );
   } else {
-    const query: IPaginationQuery<Book> = ctx.query["q"]
-      ? {
-          ...ctx.state.pagination,
-          where: searchByColumn<Book>("title", ctx.query["q"])
-        }
-      : ctx.state.pagination;
     ctx.body = await bookService.getAll(query);
   }
 

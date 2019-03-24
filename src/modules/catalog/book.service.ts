@@ -20,9 +20,7 @@ class BookService {
   async getAllByCategoryId(categoryId: string, query: IPaginationQuery<Book>) {
     const books: IPaginatedResource<IBookListItem> = await paginate(Book, {
       ...query,
-      where: {
-        categoryId: categoryId
-      },
+      where: { ...query.where, categoryId: categoryId },
       scope: "listItem"
     });
 

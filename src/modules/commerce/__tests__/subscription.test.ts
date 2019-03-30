@@ -4,10 +4,13 @@ import {
   FORBIDDEN,
   NO_CONTENT,
   OK,
-  UNAUTHORIZED
+  UNAUTHORIZED,
+  UNPROCESSABLE_ENTITY
 } from "http-status-codes";
 import "jest-extended";
 import { SuperTest, Test } from "supertest";
+import SubscriptionPlan from "../../../models/SubscriptionPlan";
+import UserSubscription from "../../../models/UserSubscription";
 import { resetDatabase } from "../../../services/database";
 import { startTestServer } from "../../../test-server";
 import {
@@ -184,6 +187,29 @@ describe("Subscription plan resource", () => {
       expect(response.status).toEqual(NO_CONTENT);
     });
 
+    it("should not allow deletion of a plan with customers already subscribed to it", async () => {
+      const plans = await createTestPlans();
+      const chosenPlan = plans[0];
+      const customerJwt = await generateCustomerToken(api);
+
+      // subscribe first
+      await api
+        .post(`${ENDPOINT}/subscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send({
+          planId: chosenPlan.id
+        });
+
+      const response = await api
+        .delete(`${ENDPOINT}/${chosenPlan.id}`)
+        .set("Authorization", `Bearer ${adminJwt}`);
+
+      expect(response.status).toBe(UNPROCESSABLE_ENTITY);
+      expect(response.body.message).toBe(
+        `Cannot delete plan since there are 1 users who are subscribed to it.`
+      );
+    });
+
     it("should not allow unauthenticated requests", async () => {
       const plans = await createTestPlans();
 
@@ -200,6 +226,98 @@ describe("Subscription plan resource", () => {
         .set("Authorization", `Bearer ${customerJwt}`);
 
       expect(response.status).toEqual(FORBIDDEN);
+    });
+  });
+
+  describe(`POST ${ENDPOINT}/subscribe`, () => {
+    it("should subscibe a customer to the chosen plan", async () => {
+      const plans = await createTestPlans();
+      const chosenPlan = plans[0];
+      const customerJwt = await generateCustomerToken(api);
+      const response = await api
+        .post(`${ENDPOINT}/subscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send({
+          planId: chosenPlan.id
+        });
+
+      expect(response.status).toEqual(OK);
+
+      const subscription: UserSubscription = response.body;
+      expect(subscription.subscriptionPlanId).toEqual(chosenPlan.id);
+    });
+
+    it("should not allow customers to subscribe to multiple plans", async () => {
+      const plans = await createTestPlans();
+      const chosenPlan = plans[0];
+      const secondPlan = plans[1];
+      const customerJwt = await generateCustomerToken(api);
+      await api
+        .post(`${ENDPOINT}/subscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send({
+          planId: chosenPlan.id
+        });
+
+      const response = await api
+        .post(`${ENDPOINT}/subscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send({
+          planId: secondPlan.id
+        });
+
+      expect(response.status).toBe(UNPROCESSABLE_ENTITY);
+    });
+
+    it("should not allow anonymous users to subscribe", async () => {
+      const plans = await createTestPlans();
+      const chosenPlan = plans[0];
+      const response = await api.post(`${ENDPOINT}/subscribe`).send({
+        planId: chosenPlan.id
+      });
+
+      expect(response.status).toEqual(UNAUTHORIZED);
+    });
+  });
+
+  describe(`POST ${ENDPOINT}/unsubscribe`, () => {
+    it("should unsubscribe a customer", async () => {
+      const plans = await createTestPlans();
+      const chosenPlan = plans[0];
+      const customerJwt = await generateCustomerToken(api);
+
+      // subscribe first
+      const sub = await api
+        .post(`${ENDPOINT}/subscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send({
+          planId: chosenPlan.id
+        });
+
+      // unsubscribe
+      const response = await api
+        .post(`${ENDPOINT}/unsubscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send();
+
+      expect(response.status).toBe(OK);
+
+      const subscription = await SubscriptionPlan.findById(sub.body.id);
+
+      expect(subscription).toBeNull();
+    });
+
+    it("should return error if user isn't subscribed", async () => {
+      const customerJwt = await generateCustomerToken(api);
+
+      // unsubscribe
+      const response = await api
+        .post(`${ENDPOINT}/unsubscribe`)
+        .set("Authorization", `Bearer ${customerJwt}`)
+        .send();
+
+      expect(response.status).toBe(UNPROCESSABLE_ENTITY);
+      expect(response.body.message).toBe("You not subscribed to a plan.");
     });
   });
 });

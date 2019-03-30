@@ -8,6 +8,7 @@ import {
   DataType,
   Default,
   HasMany,
+  HasOne,
   IsEmail,
   Length,
   Model,
@@ -17,6 +18,7 @@ import {
   UpdatedAt
 } from "sequelize-typescript";
 import Purchase, { IPurchaseSnapshot } from "./Purchase";
+import UserSubscription from "./UserSubscription";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -72,12 +74,15 @@ export default class ApplicationUser extends Model<ApplicationUser> {
   @HasMany(() => Purchase)
   purchases: Purchase[];
 
+  @HasOne(() => UserSubscription)
+  subscription: UserSubscription;
+
   async comparePasswords(candidatePassword: string = "") {
     return bcrypt.compare(candidatePassword, this.password);
   }
 
-  async getPurchasedBooks() {
-    const purchases: Purchase[] = this.get("purchases");
+  get purchasedBooks() {
+    const purchases: Purchase[] = this.get("purchases") || [];
 
     const bookIds = new Set(
       purchases

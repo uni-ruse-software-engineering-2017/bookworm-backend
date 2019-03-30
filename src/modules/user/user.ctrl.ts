@@ -20,7 +20,7 @@ UserController.get("/", withRole("admin"), withPagination, async ctx => {
 UserController.get("/profile", async ctx => {
   const profile = ctx.state.session as IUserProfile;
   const user = await userService.getById(profile.id);
-  const purchasedBooks = await user.getPurchasedBooks();
+  const purchasedBooks = user.purchasedBooks;
 
   ctx.body = {
     id: profile.id,
@@ -28,7 +28,13 @@ UserController.get("/profile", async ctx => {
     firstName: profile.firstName,
     lastName: profile.lastName,
     role: profile.role,
-    ownedBooks: [...purchasedBooks]
+    ownedBooks: [...purchasedBooks],
+    subscription: user.subscription
+      ? {
+          ...user.subscription.toJSON(),
+          isActive: user.subscription.isActive
+        }
+      : null
   } as Partial<IUserProfile>;
 
   return ctx;

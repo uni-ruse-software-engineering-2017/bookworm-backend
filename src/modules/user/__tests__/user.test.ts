@@ -133,7 +133,8 @@ describe("User resource", () => {
         "firstName",
         "lastName",
         "role",
-        "ownedBooks"
+        "ownedBooks",
+        "subscription"
       ]);
 
       const userProfile: IUserProfile = response.body;

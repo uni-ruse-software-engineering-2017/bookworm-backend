@@ -1,6 +1,8 @@
-import { CREATED, NO_CONTENT } from "http-status-codes";
+import { CREATED, NO_CONTENT, OK } from "http-status-codes";
 import * as Router from "koa-router";
 import withRole from "../../middleware/with-role";
+import { IUserProfile } from "../user/user.contracts";
+import userService from "../user/user.service";
 import { ISubscriptionPlan } from "./commerce.contracts";
 import subscriptionService from "./subscription.service";
 
@@ -39,5 +41,33 @@ SubscriptionPlanController.delete("/:id", withRole("admin"), async ctx => {
 
   return ctx;
 });
+
+SubscriptionPlanController.post(
+  "/subscribe",
+  withRole("customer"),
+  async ctx => {
+    const profile = ctx.state.session as IUserProfile;
+    const user = await userService.getById(profile.id);
+    const plan: { planId: string } = ctx.request.body;
+
+    ctx.body = await subscriptionService.subscribeCustomer(user, plan.planId);
+
+    return ctx;
+  }
+);
+
+SubscriptionPlanController.post(
+  "/unsubscribe",
+  withRole("customer"),
+  async ctx => {
+    const profile = ctx.state.session as IUserProfile;
+    const user = await userService.getById(profile.id);
+
+    await subscriptionService.unsubscribeCustomer(user);
+
+    ctx.status = OK;
+    return ctx;
+  }
+);
 
 export default SubscriptionPlanController;

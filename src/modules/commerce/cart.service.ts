@@ -74,7 +74,7 @@ class CartService implements ICartService {
         throw badRequest("User does not exist.");
       }
 
-      const purchasedBookIds = await user.getPurchasedBooks();
+      const purchasedBookIds = user.purchasedBooks;
 
       if (purchasedBookIds.has(bookId)) {
         throw badData("User already owns this book.");

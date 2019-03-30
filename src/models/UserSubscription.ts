@@ -6,8 +6,7 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
-  Table,
-  Unique
+  Table
 } from "sequelize-typescript";
 import ApplicationUser from "./ApplicationUser";
 import SubscriptionPlan from "./SubscriptionPlan";
@@ -19,7 +18,6 @@ export default class UserSubscription extends Model<UserSubscription> {
   @Column(DataType.BIGINT)
   id: string;
 
-  @Unique
   @Column
   name: string;
 
@@ -35,6 +33,11 @@ export default class UserSubscription extends Model<UserSubscription> {
   @Column({ field: "price_per_month", type: DataType.DECIMAL.UNSIGNED })
   pricePerMonth: number;
 
+  get isActive(): boolean {
+    const expiresAt: Date = this.getDataValue("expiresAt");
+    return expiresAt.getTime() > Date.now();
+  }
+
   /**
    * Foreign key - User
    */
@@ -42,7 +45,12 @@ export default class UserSubscription extends Model<UserSubscription> {
   user: ApplicationUser;
 
   @ForeignKey(() => ApplicationUser)
-  @Column({ field: "user_id", type: DataType.BIGINT })
+  @Column({
+    field: "user_id",
+    type: DataType.BIGINT,
+    unique: "user_subscription_plan",
+    onDelete: "cascade"
+  })
   userId: string;
 
   /**
@@ -52,6 +60,11 @@ export default class UserSubscription extends Model<UserSubscription> {
   plan: SubscriptionPlan;
 
   @ForeignKey(() => SubscriptionPlan)
-  @Column({ field: "subscription_plan_id", type: DataType.BIGINT })
+  @Column({
+    field: "subscription_plan_id",
+    type: DataType.BIGINT,
+    unique: "user_subscription_plan",
+    onDelete: "cascade"
+  })
   subscriptionPlanId: string;
 }

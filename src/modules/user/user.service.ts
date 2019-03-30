@@ -1,13 +1,14 @@
 import { badData } from "boom";
 import ApplicationUser from "../../models/ApplicationUser";
 import Purchase from "../../models/Purchase";
+import UserSubscription from "../../models/UserSubscription";
 import paginate, { IPaginationQuery } from "../../services/paginate";
 import { IApplicationUserData } from "./user.contracts";
 
 class UserService {
   async getById(userId = "") {
     const user = await ApplicationUser.findById(userId, {
-      include: [Purchase]
+      include: [Purchase, UserSubscription]
     });
 
     return user;
@@ -18,7 +19,7 @@ class UserService {
       where: {
         email: username
       },
-      include: [Purchase]
+      include: [Purchase, UserSubscription]
     });
   }
 

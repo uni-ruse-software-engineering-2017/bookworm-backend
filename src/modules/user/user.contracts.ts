@@ -1,4 +1,5 @@
 import { UserRole } from "../../models/ApplicationUser";
+import UserSubscription from "../../models/UserSubscription";
 
 export interface IUserProfile {
   readonly id: string;
@@ -7,6 +8,7 @@ export interface IUserProfile {
   lastName: string;
   role: UserRole;
   ownedBooks: string[];
+  subscription?: UserSubscription;
 }
 
 export interface IApplicationUserData {

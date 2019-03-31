@@ -66,6 +66,10 @@ SubscriptionPlanController.post(
     await subscriptionService.unsubscribeCustomer(user);
 
     ctx.status = OK;
+    ctx.body = {
+      success: true
+    };
+
     return ctx;
   }
 );

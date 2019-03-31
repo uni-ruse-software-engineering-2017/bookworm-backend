@@ -148,10 +148,11 @@ class SubscriptionService implements ISubscriptionService {
     }
 
     if (!customer.subscription) {
-      throw badData("You not subscribed to a plan.");
+      throw badData("You are not subscribed to a plan.");
     }
 
     customer.subscription.get();
+
     await customer.subscription.destroy();
   }
 

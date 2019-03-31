@@ -317,7 +317,7 @@ describe("Subscription plan resource", () => {
         .send();
 
       expect(response.status).toBe(UNPROCESSABLE_ENTITY);
-      expect(response.body.message).toBe("You not subscribed to a plan.");
+      expect(response.body.message).toBe("You are not subscribed to a plan.");
     });
   });
 });

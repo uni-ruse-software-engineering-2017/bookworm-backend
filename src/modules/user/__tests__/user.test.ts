@@ -134,7 +134,8 @@ describe("User resource", () => {
         "lastName",
         "role",
         "ownedBooks",
-        "subscription"
+        "subscription",
+        "gravatarUrl"
       ]);
 
       const userProfile: IUserProfile = response.body;

@@ -9,6 +9,7 @@ export interface IUserProfile {
   role: UserRole;
   ownedBooks: string[];
   subscription?: UserSubscription;
+  gravatarUrl?: string;
 }
 
 export interface IApplicationUserData {

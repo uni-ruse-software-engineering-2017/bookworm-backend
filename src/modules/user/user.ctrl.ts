@@ -4,6 +4,7 @@ import * as Router from "koa-router";
 import withAuthentication from "../../middleware/with-authentication";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
+import md5 from "../../util/md5";
 import { IApplicationUserData, IUserProfile } from "./user.contracts";
 import userService from "./user.service";
 
@@ -34,7 +35,10 @@ UserController.get("/profile", async ctx => {
           ...user.subscription.toJSON(),
           isActive: user.subscription.isActive
         }
-      : null
+      : null,
+    gravatarUrl: `https://www.gravatar.com/avatar/${md5(
+      profile.email
+    )}?d=mp&s=200`
   } as Partial<IUserProfile>;
 
   return ctx;

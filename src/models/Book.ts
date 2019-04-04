@@ -9,6 +9,7 @@ import {
   Default,
   ForeignKey,
   HasMany,
+  Is,
   IsDate,
   IsNumeric,
   IsUrl,
@@ -20,6 +21,7 @@ import {
   Unique,
   UpdatedAt
 } from "sequelize-typescript";
+import { ISBNValidator } from "../util/validators";
 import Author from "./Author";
 import BookPurchase from "./BookPurchase";
 import Category from "./Category";
@@ -49,7 +51,7 @@ export default class Book extends Model<Book> {
   title: string;
 
   @Unique
-  @Length({ min: 10, max: 13 })
+  @Is(ISBNValidator)
   @Column({ type: DataType.STRING })
   get isbn(): string {
     return this.getDataValue("isbn");

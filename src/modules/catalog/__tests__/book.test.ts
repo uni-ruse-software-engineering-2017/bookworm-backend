@@ -14,7 +14,8 @@ import { IPaginatedResource } from "../../../services/paginate";
 import { startTestServer } from "../../../test-server";
 import {
   generateAdminToken,
-  generateCustomerToken
+  generateCustomerToken,
+  ISBNS
 } from "../../../util/test-helpers";
 import authorService from "../author.service";
 import bookService from "../book.service";
@@ -149,7 +150,7 @@ describe("Book resource", () => {
           datePublished: new Date(),
           featured: false,
           freeDownload: false,
-          isbn: `97831614841${i}`,
+          isbn: ISBNS[i],
           price: 6.78,
           authorId: author.id,
           categoryId: category.id
@@ -191,7 +192,7 @@ describe("Book resource", () => {
       });
       const anotherBook = await bookService.create({
         datePublished: new Date(),
-        isbn: "978316148499",
+        isbn: ISBNS[0],
         pages: 100,
         title: "Another book",
         authorId: anotherAuthor.id,
@@ -357,6 +358,25 @@ describe("Book resource", () => {
       expect(responseBody.coverImage).toEqual(book.coverImage);
       expect(responseBody.available).toEqual(book.available);
       expect(responseBody).toContainAllKeys(detailedScopeKeys);
+    });
+
+    it("should not create a new book with invalid ISBN", async () => {
+      const [author, category] = await Promise.all([
+        createTestAuthor(),
+        createTestCategory()
+      ]);
+      const book: IBook = {
+        ...testBook,
+        isbn: "0198526637", // invalid ISBN
+        authorId: author.id,
+        categoryId: category.id
+      };
+      const response = await api
+        .post(ENDPOINT)
+        .set("Authorization", `Bearer ${adminJwt}`)
+        .send(book);
+
+      expect(response.status).toEqual(UNPROCESSABLE_ENTITY);
     });
 
     it("should not create a new category with an existing category's name", async () => {

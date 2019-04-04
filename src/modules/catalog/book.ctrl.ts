@@ -67,6 +67,12 @@ BookController.get("/featured", withPagination, async ctx => {
   return ctx;
 });
 
+BookController.get("/latest", async ctx => {
+  ctx.body = await bookService.getLatestBooks();
+
+  return ctx;
+});
+
 BookController.get("/:id", async ctx => {
   const book = await bookService.getById(ctx.params.id);
 

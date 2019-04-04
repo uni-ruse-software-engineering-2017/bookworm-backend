@@ -98,6 +98,16 @@ class BookService {
 
     return featuredBooks;
   }
+
+  async getLatestBooks() {
+    const latestBooks = await paginate(Book, {
+      page: 1,
+      pageSize: 10,
+      sort: [["created_at", "DESC"]]
+    });
+
+    return latestBooks;
+  }
 }
 
 export default new BookService();

@@ -9,6 +9,7 @@ import {
   PrimaryKey,
   Table
 } from "sequelize-typescript";
+import { ISubscriptionCredits } from "../modules/commerce/commerce.contracts";
 import ApplicationUser from "./ApplicationUser";
 import SubscriptionPlan from "./SubscriptionPlan";
 
@@ -42,6 +43,8 @@ export default class UserSubscription extends Model<UserSubscription> {
     const expiresAt: Date = this.getDataValue("expiresAt");
     return expiresAt.getTime() > Date.now();
   }
+
+  credits: ISubscriptionCredits;
 
   /**
    * Foreign key - User

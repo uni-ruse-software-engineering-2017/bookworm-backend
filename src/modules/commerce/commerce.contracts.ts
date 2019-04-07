@@ -22,3 +22,8 @@ export interface ISubscriptionPlan {
   booksPerMonth: number;
   pricePerMonth: number;
 }
+
+export interface ISubscriptionCredits {
+  limit: number;
+  used: number;
+}

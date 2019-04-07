@@ -134,6 +134,7 @@ describe("User resource", () => {
         "lastName",
         "role",
         "ownedBooks",
+        "booksAvailableForOnlineReading",
         "subscription",
         "gravatarUrl"
       ]);
@@ -145,6 +146,9 @@ describe("User resource", () => {
       expect(userProfile.lastName).toEqual(customerUser.lastName);
       expect(userProfile.role).toEqual(customerUser.role);
       expect(userProfile.ownedBooks).toBeArray();
+      expect(userProfile.ownedBooks).toBeEmpty();
+      expect(userProfile.booksAvailableForOnlineReading).toBeArray();
+      expect(userProfile.booksAvailableForOnlineReading).toBeEmpty();
     });
 
     it(`should only allow authorized requests`, async () => {

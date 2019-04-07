@@ -203,18 +203,9 @@ class SubscriptionService implements ISubscriptionService {
       throw badData("You already have purchased this book.");
     }
 
-    const booksStartedThisMonthCount = await StartedReadingBook.count({
-      where: {
-        userId: customer.id,
-        userSubscriptionId: customer.subscription.id,
-        startedAt: {
-          [Op.between]: [
-            customer.subscription.subscribedAt,
-            customer.subscription.expiresAt
-          ]
-        }
-      }
-    });
+    const booksStartedThisMonthCount = await this.getCreditsSpentThisMonth(
+      customer
+    );
 
     if (booksStartedThisMonthCount > customer.subscription.booksPerMonth) {
       throw badData(
@@ -240,6 +231,35 @@ class SubscriptionService implements ISubscriptionService {
 
       throw error;
     }
+  }
+
+  getCreditsSpentThisMonth(customer: ApplicationUser) {
+    if (!customer.subscription) {
+      return Promise.resolve(0);
+    }
+
+    return StartedReadingBook.count({
+      where: {
+        userId: customer.id,
+        userSubscriptionId: customer.subscription.id,
+        startedAt: {
+          [Op.between]: [
+            customer.subscription.subscribedAt,
+            customer.subscription.expiresAt
+          ]
+        }
+      }
+    });
+  }
+
+  async getBooksAvailableForOnlineReading(customer: ApplicationUser) {
+    const books = await StartedReadingBook.findAll({
+      where: {
+        userId: customer.id
+      }
+    });
+
+    return new Set(books.map(result => result.bookId));
   }
 
   private async checkIfThereAreUsersSubscribed(planId: string) {

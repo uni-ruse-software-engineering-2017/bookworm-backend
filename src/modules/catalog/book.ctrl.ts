@@ -61,6 +61,29 @@ BookController.get(
   }
 );
 
+BookController.get(
+  "/available-for-online-reading",
+  withRole("customer"),
+  withPagination,
+  async ctx => {
+    const profile = ctx.state.session as IUserProfile;
+    const user = await userService.getById(profile.id);
+    const booksStarted = user.booksStartedReading;
+    const pagination: IPaginationQuery<Book> = ctx.state.pagination;
+
+    ctx.body = await bookService.getAll({
+      ...pagination,
+      where: {
+        id: {
+          [Op.in]: [...booksStarted]
+        }
+      }
+    });
+
+    return ctx;
+  }
+);
+
 BookController.get("/featured", withPagination, async ctx => {
   ctx.body = await bookService.getFeaturedBooks();
 

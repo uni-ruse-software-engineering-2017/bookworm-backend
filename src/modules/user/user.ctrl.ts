@@ -5,6 +5,7 @@ import withAuthentication from "../../middleware/with-authentication";
 import withPagination from "../../middleware/with-pagination";
 import withRole from "../../middleware/with-role";
 import md5 from "../../util/md5";
+import subscriptionService from "../commerce/subscription.service";
 import { IApplicationUserData, IUserProfile } from "./user.contracts";
 import userService from "./user.service";
 
@@ -21,7 +22,9 @@ UserController.get("/", withRole("admin"), withPagination, async ctx => {
 UserController.get("/profile", async ctx => {
   const profile = ctx.state.session as IUserProfile;
   const user = await userService.getById(profile.id);
+
   const purchasedBooks = user.purchasedBooks;
+  const creditsUsed = await subscriptionService.getCreditsSpentThisMonth(user);
 
   ctx.body = {
     id: profile.id,
@@ -30,10 +33,15 @@ UserController.get("/profile", async ctx => {
     lastName: profile.lastName,
     role: profile.role,
     ownedBooks: [...purchasedBooks],
+    booksAvailableForOnlineReading: [...user.booksStartedReading],
     subscription: user.subscription
       ? {
           ...user.subscription.toJSON(),
-          isActive: user.subscription.isActive
+          isActive: user.subscription.isActive,
+          credits: {
+            used: creditsUsed,
+            limit: user.subscription.booksPerMonth
+          }
         }
       : null,
     gravatarUrl: `https://www.gravatar.com/avatar/${md5(

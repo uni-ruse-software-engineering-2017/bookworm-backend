@@ -18,6 +18,7 @@ import {
   UpdatedAt
 } from "sequelize-typescript";
 import Purchase, { IPurchaseSnapshot } from "./Purchase";
+import StartedReadingBook from "./StartedReadingBook";
 import UserSubscription from "./UserSubscription";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -74,6 +75,9 @@ export default class ApplicationUser extends Model<ApplicationUser> {
   @HasMany(() => Purchase)
   purchases: Purchase[];
 
+  @HasMany(() => StartedReadingBook)
+  startedReading: StartedReadingBook[];
+
   @HasOne(() => UserSubscription)
   subscription: UserSubscription;
 
@@ -95,6 +99,12 @@ export default class ApplicationUser extends Model<ApplicationUser> {
     );
 
     return bookIds;
+  }
+
+  get booksStartedReading() {
+    const started: StartedReadingBook[] = this.get("startedReading") || [];
+
+    return new Set(started.map(started => started.bookId));
   }
 
   @BeforeSave

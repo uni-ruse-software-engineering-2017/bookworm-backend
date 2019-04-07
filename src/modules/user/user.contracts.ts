@@ -8,6 +8,7 @@ export interface IUserProfile {
   lastName: string;
   role: UserRole;
   ownedBooks: string[];
+  booksAvailableForOnlineReading: string[];
   subscription?: UserSubscription;
   gravatarUrl?: string;
 }

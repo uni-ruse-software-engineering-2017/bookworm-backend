@@ -1,8 +1,12 @@
 import { badData, notFound } from "boom";
+import { addHours, addMonths } from "date-fns";
+import { Op } from "sequelize";
 import ApplicationUser from "../../models/ApplicationUser";
+import StartedReadingBook from "../../models/StartedReadingBook";
 import SubscriptionPlan from "../../models/SubscriptionPlan";
 import UserSubscription from "../../models/UserSubscription";
 import { IPaginatedResource, IPaginationQuery } from "../../services/paginate";
+import bookService from "../catalog/book.service";
 import { IUserProfile } from "../user/user.contracts";
 import { ISubscriptionPlan } from "./commerce.contracts";
 
@@ -117,9 +121,7 @@ class SubscriptionService implements ISubscriptionService {
 
     const subscriptionPlan = await this.getPlanById(planId);
     const now = new Date();
-    const oneMonthFromNow = new Date(
-      new Date().setMonth(new Date().getMonth() + 1)
-    );
+    const oneMonthFromNow = addMonths(now, 1);
 
     try {
       const userSubscription = await UserSubscription.create({
@@ -151,15 +153,93 @@ class SubscriptionService implements ISubscriptionService {
       throw badData("You are not subscribed to a plan.");
     }
 
-    customer.subscription.get();
-
     await customer.subscription.destroy();
+  }
+
+  async renewSubscription(subscription: UserSubscription) {
+    // TODO: process payment
+    const paymentSuccessful = true;
+
+    if (paymentSuccessful) {
+      const now = new Date();
+      subscription.lastRenewedAt = now;
+      subscription.expiresAt = addMonths(now, 1);
+
+      return subscription.save();
+    } else {
+      return subscription.destroy();
+    }
   }
 
   getSubcribers(
     query: IPaginationQuery<IUserProfile>
   ): Promise<IPaginatedResource<IUserProfile>> {
     throw new Error("Method not implemented.");
+  }
+
+  async getExpiringSubscriptions() {
+    const now = new Date();
+    const oneHourFromNow = addHours(now, 1);
+
+    return UserSubscription.findAll({
+      where: {
+        expiresAt: {
+          [Op.between]: [now, oneHourFromNow]
+        }
+      }
+    });
+  }
+
+  async startReadingBook(customer: ApplicationUser, bookId: string) {
+    if (!customer.subscription) {
+      throw badData(
+        "You are not a subscriber! Subscribe for a plan if you want to read books without purchasing them."
+      );
+    }
+
+    const book = await bookService.getById(bookId);
+
+    if (customer.purchasedBooks.has(book.id)) {
+      throw badData("You already have purchased this book.");
+    }
+
+    const booksStartedThisMonthCount = await StartedReadingBook.count({
+      where: {
+        userId: customer.id,
+        userSubscriptionId: customer.subscription.id,
+        startedAt: {
+          [Op.between]: [
+            customer.subscription.subscribedAt,
+            customer.subscription.expiresAt
+          ]
+        }
+      }
+    });
+
+    if (booksStartedThisMonthCount > customer.subscription.booksPerMonth) {
+      throw badData(
+        `You have reached your books reading quota (${
+          customer.subscription.booksPerMonth
+        } books) for this month.`
+      );
+    }
+
+    try {
+      const bookStarted = await StartedReadingBook.create({
+        bookId: bookId,
+        startedAt: new Date(),
+        userId: customer.id,
+        userSubscriptionId: customer.subscription.id
+      });
+
+      return bookStarted;
+    } catch (error) {
+      if (error.name === "SequelizeUniqueConstraintError") {
+        throw badData("You can already read this book online.");
+      }
+
+      throw error;
+    }
   }
 
   private async checkIfThereAreUsersSubscribed(planId: string) {

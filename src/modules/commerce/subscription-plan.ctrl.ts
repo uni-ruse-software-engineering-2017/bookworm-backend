@@ -23,6 +23,25 @@ SubscriptionPlanController.post("/", withRole("admin"), async ctx => {
   return ctx;
 });
 
+SubscriptionPlanController.post(
+  "/start-reading",
+  withRole("customer"),
+  async ctx => {
+    const profile = ctx.state.session as IUserProfile;
+    const customer = await userService.getById(profile.id);
+
+    const body: { bookId: string } = ctx.request.body;
+
+    ctx.body = await subscriptionService.startReadingBook(
+      customer,
+      body.bookId
+    );
+    ctx.status = CREATED;
+
+    return ctx;
+  }
+);
+
 SubscriptionPlanController.patch("/:id", withRole("admin"), async ctx => {
   const plan: Partial<ISubscriptionPlan> = {
     ...ctx.request.body,

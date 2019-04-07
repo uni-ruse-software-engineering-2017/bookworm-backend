@@ -27,7 +27,7 @@ class BookService {
     return books;
   }
 
-  async getById(bookId = "") {
+  async getById(bookId: string) {
     const book = await Book.scope("detailed")
       .findByPrimary(bookId)
       .catch(error => {

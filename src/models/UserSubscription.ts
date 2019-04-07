@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   AutoIncrement,
   BelongsTo,
   Column,
@@ -26,6 +27,10 @@ export default class UserSubscription extends Model<UserSubscription> {
 
   @Column({ field: "expires_at", type: DataType.DATE })
   expiresAt: Date;
+
+  @AllowNull
+  @Column({ field: "last_renewed_at", type: DataType.DATE })
+  lastRenewedAt: Date | null;
 
   @Column({ field: "books_per_month", type: DataType.SMALLINT })
   booksPerMonth: number;

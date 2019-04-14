@@ -27,14 +27,14 @@ export interface IPurchaseSnapshot {
   bookId: string;
 }
 
-@Table({ tableName: "purchase" })
+@Table({ tableName: "purchase", timestamps: false })
 export default class Purchase extends Model<Purchase> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.BIGINT)
   id: string;
 
-  @Column
+  @Column({ field: "payment_method", type: DataType.STRING })
   paymentMethod: string;
 
   @Column({ field: "placed_at", type: DataType.DATE })

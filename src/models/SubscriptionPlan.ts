@@ -12,7 +12,7 @@ import {
 import { ISubscriptionPlan } from "../modules/commerce/commerce.contracts";
 import { PositiveNumberValidator } from "./../util/validators";
 
-@Table({ tableName: "subscription_plan" })
+@Table({ tableName: "subscription_plan", timestamps: false })
 export default class SubscriptionPlan extends Model<SubscriptionPlan>
   implements ISubscriptionPlan {
   @PrimaryKey

@@ -8,8 +8,8 @@ import { IApplicationUserData } from "./user.contracts";
 
 class UserService {
   async getById(userId = "") {
-    const user = await ApplicationUser.findById(userId, {
-      include: [Purchase, UserSubscription, StartedReadingBook]
+    const user = await ApplicationUser.findByPk(userId, {
+      include: [UserSubscription, StartedReadingBook]
     });
 
     return user;

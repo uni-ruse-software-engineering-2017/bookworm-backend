@@ -29,7 +29,7 @@ class BookService {
 
   async getById(bookId: string) {
     const book = await Book.scope("detailed")
-      .findByPrimary(bookId)
+      .findByPk(bookId)
       .catch(error => {
         logger.error(error);
         Promise.resolve(null);
@@ -62,7 +62,8 @@ class BookService {
   async edit(bookId = "", bookData: Partial<IBook> = {}) {
     const bookToEdit = await this.getById(bookId);
 
-    for (const key in bookData) {
+    let key: keyof IBook;
+    for (key in bookData) {
       if (bookData.hasOwnProperty(key) && typeof bookData[key] !== undefined) {
         bookToEdit.set(key, bookData[key]);
       }

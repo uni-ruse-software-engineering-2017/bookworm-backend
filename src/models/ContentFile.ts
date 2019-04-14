@@ -10,7 +10,7 @@ import {
 } from "sequelize-typescript";
 import Book from "./Book";
 
-@Table({ tableName: "content_file" })
+@Table({ tableName: "content_file", timestamps: false })
 export default class ContentFile extends Model<ContentFile> {
   @PrimaryKey
   @AutoIncrement

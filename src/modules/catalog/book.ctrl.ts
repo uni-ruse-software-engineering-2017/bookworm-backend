@@ -45,7 +45,7 @@ BookController.get(
   async ctx => {
     const profile = ctx.state.session as IUserProfile;
     const user = await userService.getById(profile.id);
-    const purchasedBooks = user.purchasedBooks;
+    const purchasedBooks = await user.purchasedBooks();
     const pagination: IPaginationQuery<Book> = ctx.state.pagination;
 
     ctx.body = await bookService.getAll({
@@ -68,7 +68,7 @@ BookController.get(
   async ctx => {
     const profile = ctx.state.session as IUserProfile;
     const user = await userService.getById(profile.id);
-    const booksStarted = user.booksStartedReading;
+    const booksStarted = await user.booksStartedReading();
     const pagination: IPaginationQuery<Book> = ctx.state.pagination;
 
     ctx.body = await bookService.getAll({

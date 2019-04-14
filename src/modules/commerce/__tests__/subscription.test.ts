@@ -302,7 +302,7 @@ describe("Subscription plan resource", () => {
 
       expect(response.status).toBe(OK);
 
-      const subscription = await SubscriptionPlan.findById(sub.body.id);
+      const subscription = await SubscriptionPlan.findByPk(sub.body.id);
 
       expect(subscription).toBeNull();
     });

@@ -19,7 +19,7 @@ export interface IBookPurchase {
   readonly snapshot: ICartLine;
 }
 
-@Table({ tableName: "book_purchase" })
+@Table({ tableName: "book_purchase", timestamps: false })
 export default class BookPurchase extends Model<BookPurchase>
   implements IBookPurchase {
   @PrimaryKey

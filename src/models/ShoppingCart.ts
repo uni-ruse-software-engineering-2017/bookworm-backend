@@ -11,7 +11,7 @@ import {
 import ApplicationUser from "./ApplicationUser";
 import Book from "./Book";
 
-@Table({ tableName: "shopping_cart" })
+@Table({ tableName: "shopping_cart", timestamps: false })
 export default class ShoppingCart extends Model<ShoppingCart> {
   @PrimaryKey
   @AutoIncrement

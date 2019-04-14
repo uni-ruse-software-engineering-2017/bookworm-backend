@@ -14,7 +14,7 @@ export interface IPaginatedResource<T> {
 export interface IPaginationQuery<T> {
   page?: number;
   pageSize?: number;
-  where?: WhereOptions<T>;
+  where?: WhereOptions;
   scope?: string;
   include?: any[];
   sort?: any;

@@ -13,7 +13,7 @@ import { ISubscriptionCredits } from "../modules/commerce/commerce.contracts";
 import ApplicationUser from "./ApplicationUser";
 import SubscriptionPlan from "./SubscriptionPlan";
 
-@Table({ tableName: "user_subscription" })
+@Table({ tableName: "user_subscription", timestamps: false })
 export default class UserSubscription extends Model<UserSubscription> {
   @PrimaryKey
   @AutoIncrement

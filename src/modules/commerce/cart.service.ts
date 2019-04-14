@@ -74,7 +74,7 @@ class CartService implements ICartService {
         throw badRequest("User does not exist.");
       }
 
-      const purchasedBookIds = user.purchasedBooks;
+      const purchasedBookIds = await user.purchasedBooks();
 
       if (purchasedBookIds.has(bookId)) {
         throw badData("User already owns this book.");
@@ -106,7 +106,7 @@ class CartService implements ICartService {
   }
 
   async getCartLine(cartLineId: string): Promise<ICartLine> {
-    const item = await ShoppingCart.findByPrimary(cartLineId, {
+    const item = await ShoppingCart.findByPk(cartLineId, {
       include: cartLineScope
     });
 

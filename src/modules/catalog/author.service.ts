@@ -23,7 +23,7 @@ class AuthorService {
   }
 
   async getById(id: string): Promise<Author | null> {
-    const author = await Author.scope("detailed").findByPrimary(id);
+    const author = await Author.scope("detailed").findByPk(id);
     return author;
   }
 
@@ -39,7 +39,7 @@ class AuthorService {
   }
 
   async edit(id: string, data: Partial<IAuthor> = {}) {
-    const author = await Author.findByPrimary(id);
+    const author = await Author.findByPk(id);
 
     if (!author) {
       throw notFound("Author not found.");
@@ -79,7 +79,7 @@ class AuthorService {
   }
 
   async remove(id: string): Promise<Author | null> {
-    const author = await Author.findByPrimary(id);
+    const author = await Author.findByPk(id);
     if (author) {
       await author.destroy();
       return author;

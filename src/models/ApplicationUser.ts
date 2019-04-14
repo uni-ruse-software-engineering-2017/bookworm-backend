@@ -17,6 +17,7 @@ import {
   Unique,
   UpdatedAt
 } from "sequelize-typescript";
+import { isArray } from "util";
 import Purchase, { IPurchaseSnapshot } from "./Purchase";
 import StartedReadingBook from "./StartedReadingBook";
 import UserSubscription from "./UserSubscription";
@@ -85,26 +86,36 @@ export default class ApplicationUser extends Model<ApplicationUser> {
     return bcrypt.compare(candidatePassword, this.password);
   }
 
-  get purchasedBooks() {
-    const purchases: Purchase[] = this.get("purchases") || [];
+  async purchasedBooks() {
+    const purchases: Purchase[] | Purchase = await this.$get("purchases");
 
-    const bookIds = new Set(
-      purchases
-        .reduce((prev, curr) => {
-          return prev.concat(curr.snapshot || []);
-        }, [])
-        .map((snapshot: IPurchaseSnapshot) => {
-          return snapshot.bookId;
-        })
-    );
+    if (isArray(purchases)) {
+      const bookIds = new Set(
+        purchases
+          .reduce((prev, curr) => {
+            return prev.concat(curr.snapshot || []);
+          }, [])
+          .map((snapshot: IPurchaseSnapshot) => {
+            return snapshot.bookId;
+          })
+      );
 
-    return bookIds;
+      return bookIds;
+    }
+
+    return new Set([...purchases.snapshot.map(snap => snap.bookId)]);
   }
 
-  get booksStartedReading() {
-    const started: StartedReadingBook[] = this.get("startedReading") || [];
+  async booksStartedReading() {
+    const started: StartedReadingBook[] | StartedReadingBook = await this.$get(
+      "startedReading"
+    );
 
-    return new Set(started.map(started => started.bookId));
+    if (isArray(started)) {
+      return new Set(started.map(started => started.bookId));
+    }
+
+    return new Set([started.bookId]);
   }
 
   @BeforeSave

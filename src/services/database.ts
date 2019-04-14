@@ -1,14 +1,13 @@
-import { ISequelizeConfig, Sequelize } from "sequelize-typescript";
+import { Sequelize, SequelizeOptions } from "sequelize-typescript";
 const dbConfig = require("./../config/db-config");
 
 const conf = dbConfig[
   process.env.NODE_ENV || "development"
-] as ISequelizeConfig;
+] as SequelizeOptions;
 
 const database = new Sequelize({
   ...conf,
   modelPaths: [__dirname + "./../models"],
-  operatorsAliases: false,
   define: {
     underscored: true,
     freezeTableName: true

@@ -53,7 +53,8 @@ class AuthService {
       throw unauthorized("Invalid credentials.");
     }
 
-    const userSession = await sessionService.create(user.toJSON());
+    const userData = user.toJSON() as IApplicationUserData;
+    const userSession = await sessionService.create(userData);
 
     return userSession;
   }

@@ -1,8 +1,8 @@
 require("dotenv-override").config({ override: true });
 
-import { ISequelizeConfig } from "sequelize-typescript";
+import { SequelizeOptions } from "sequelize-typescript";
 
-const dbConfig: { [key: string]: ISequelizeConfig } = {
+const dbConfig: { [key: string]: SequelizeOptions } = {
   test: {
     username: null,
     password: null,

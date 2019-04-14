@@ -23,8 +23,11 @@ UserController.get("/profile", async ctx => {
   const profile = ctx.state.session as IUserProfile;
   const user = await userService.getById(profile.id);
 
-  const purchasedBooks = user.purchasedBooks;
+  const purchasedBooks = await user.purchasedBooks();
   const creditsUsed = await subscriptionService.getCreditsSpentThisMonth(user);
+  const booksAvailableForOnlineReading: string[] = [
+    ...(await user.booksStartedReading())
+  ];
 
   ctx.body = {
     id: profile.id,
@@ -33,7 +36,7 @@ UserController.get("/profile", async ctx => {
     lastName: profile.lastName,
     role: profile.role,
     ownedBooks: [...purchasedBooks],
-    booksAvailableForOnlineReading: [...user.booksStartedReading],
+    booksAvailableForOnlineReading: booksAvailableForOnlineReading,
     subscription: user.subscription
       ? {
           ...user.subscription.toJSON(),

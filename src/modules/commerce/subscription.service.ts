@@ -36,7 +36,7 @@ class SubscriptionService implements ISubscriptionService {
     planData.booksPerMonth = Math.round(planData.booksPerMonth);
 
     try {
-      const plan = await SubscriptionPlan.create(planData, { validate: true });
+      const plan = await SubscriptionPlan.create(planData);
 
       return plan;
     } catch (error) {
@@ -51,7 +51,7 @@ class SubscriptionService implements ISubscriptionService {
   }
 
   async getPlanById(planId: string) {
-    const plan = await SubscriptionPlan.findByPrimary(planId);
+    const plan = await SubscriptionPlan.findByPk(planId);
 
     if (!plan) {
       throw notFound(`Subscription plan with ID ${planId} was not found.`);
@@ -198,8 +198,9 @@ class SubscriptionService implements ISubscriptionService {
     }
 
     const book = await bookService.getById(bookId);
+    const purchasedBooks = await customer.purchasedBooks();
 
-    if (customer.purchasedBooks.has(book.id)) {
+    if (purchasedBooks.has(book.id)) {
       throw badData("You already have purchased this book.");
     }
 

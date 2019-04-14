@@ -24,7 +24,7 @@ export interface IStartedReadingBook {
   user: ApplicationUser;
 }
 
-@Table({ tableName: "started_reading_book" })
+@Table({ tableName: "started_reading_book", timestamps: false })
 export default class StartedReadingBook extends Model<StartedReadingBook>
   implements IStartedReadingBook {
   @PrimaryKey

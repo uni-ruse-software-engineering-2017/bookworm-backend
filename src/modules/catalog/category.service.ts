@@ -30,7 +30,7 @@ class CategoryService {
   }
 
   async getById(id: string): Promise<ICategory | null> {
-    const category = await Category.scope("full").findByPrimary(id);
+    const category = await Category.scope("full").findByPk(id);
 
     if (!category) {
       return null;
@@ -44,7 +44,7 @@ class CategoryService {
   }
 
   async edit(id: string, data: Partial<ICategory> = {}) {
-    const category = await Category.findByPrimary(id);
+    const category = await Category.findByPk(id);
 
     if (!category) {
       throw notFound("Category not found.");
@@ -80,7 +80,7 @@ class CategoryService {
   }
 
   async remove(id: string): Promise<Category | null> {
-    const category = await Category.findByPrimary(id);
+    const category = await Category.findByPk(id);
     if (category) {
       await category.destroy();
       return category;

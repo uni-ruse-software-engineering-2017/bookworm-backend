@@ -6,11 +6,18 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
+  Scopes,
   Table
 } from "sequelize-typescript";
 import Book from "./Book";
 
 @Table({ tableName: "content_file", timestamps: false })
+@Scopes({
+  full: {},
+  restricted: {
+    attributes: ["id", "extension", "size_in_bytes", "is_preview"]
+  }
+})
 export default class ContentFile extends Model<ContentFile> {
   @PrimaryKey
   @AutoIncrement

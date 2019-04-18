@@ -129,7 +129,31 @@ BookController.delete("/:id", withRole("admin"), async ctx => {
 });
 
 BookController.get("/:id/files", async ctx => {
-  const contentFiles = await contentService.getAllByBookId(ctx.params.id);
+  const bookId: string = ctx.params.id;
+  const session: IUserProfile | null = ctx.state.session;
+  let hasAccess = false;
+
+  if (session) {
+    // administrators always have full access to book files
+    if (session.role === "admin") {
+      hasAccess = true;
+    } else {
+      const user = await userService.getById(session.id);
+      const purchasedBooks = await user.purchasedBooks();
+
+      const isBookPurchased = purchasedBooks.has(bookId);
+      const isBookStarted = Boolean(
+        user.startedReading.find(b => b.bookId === bookId)
+      );
+
+      hasAccess = isBookPurchased || isBookStarted;
+    }
+  }
+
+  const contentFiles = await contentService.getAllByBookId(
+    ctx.params.id,
+    hasAccess
+  );
 
   ctx.body = contentFiles;
   return ctx;

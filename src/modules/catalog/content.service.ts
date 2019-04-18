@@ -3,8 +3,10 @@ import ContentFile from "../../models/ContentFile";
 import { IContentFileMetadata } from "./catalog.contracts";
 
 class ContentService {
-  async getAllByBookId(bookId: string) {
-    return ContentFile.findAll({
+  async getAllByBookId(bookId: string, hasAccess: boolean) {
+    const scope = hasAccess ? "full" : "restricted";
+
+    return ContentFile.scope(scope).findAll({
       where: {
         bookId: bookId
       }

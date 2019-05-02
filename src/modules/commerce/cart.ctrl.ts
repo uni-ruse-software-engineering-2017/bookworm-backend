@@ -50,10 +50,9 @@ CartController.delete("/:id", withRole("customer"), async ctx => {
 CartController.post("/checkout", withRole("customer"), async ctx => {
   const session = ctx.state.session as IApplicationUserData;
 
-  // TODO: implement payments before checkout
-  const purchase = await cartService.checkout(session.id);
+  const [checkoutSession] = await cartService.checkout(session.id);
 
-  ctx.body = purchase;
+  ctx.body = checkoutSession;
   ctx.status = HttpStatus.OK;
 
   return ctx;

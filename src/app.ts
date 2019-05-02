@@ -11,6 +11,7 @@ import withSession from "./middleware/with-session";
 import RestAPI from "./rest-api";
 import database from "./services/database";
 import logger from "./services/logger";
+import webhooks from "./webhooks";
 
 const STATIC_FILES_PATH = join(__dirname, "/uploads");
 
@@ -33,6 +34,8 @@ app.use(bodyParser({ enableTypes: ["json"] }));
 app.use(mount("/files", serveStatic(STATIC_FILES_PATH)));
 
 app.use(RestAPI.routes());
+
+app.use(webhooks.routes());
 
 (async () => {
   try {

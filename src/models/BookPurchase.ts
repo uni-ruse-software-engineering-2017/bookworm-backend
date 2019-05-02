@@ -8,15 +8,14 @@ import {
   PrimaryKey,
   Table
 } from "sequelize-typescript";
-import { ICartLine } from "../modules/commerce/commerce.contracts";
 import Book from "./Book";
-import Purchase from "./Purchase";
+import Purchase, { IPurchaseSnapshot } from "./Purchase";
 
 export interface IBookPurchase {
   readonly id?: string;
   readonly purchaseId: string;
   readonly bookId: string;
-  readonly snapshot: ICartLine;
+  readonly snapshot: IPurchaseSnapshot;
 }
 
 @Table({ tableName: "book_purchase", timestamps: false })
@@ -28,7 +27,7 @@ export default class BookPurchase extends Model<BookPurchase>
   id: string;
 
   @Column(DataType.JSON)
-  snapshot: ICartLine;
+  snapshot: IPurchaseSnapshot;
 
   /**
    * Foreign key - Purchase

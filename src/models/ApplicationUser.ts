@@ -92,6 +92,7 @@ export default class ApplicationUser extends Model<ApplicationUser> {
     if (isArray(purchases)) {
       const bookIds = new Set(
         purchases
+          .filter(p => p.isPaid)
           .reduce((prev, curr) => {
             return prev.concat(curr.snapshot || []);
           }, [])
@@ -103,7 +104,9 @@ export default class ApplicationUser extends Model<ApplicationUser> {
       return bookIds;
     }
 
-    return new Set([...purchases.snapshot.map(snap => snap.bookId)]);
+    return new Set(
+      purchases.isPaid ? [...purchases.snapshot.map(snap => snap.bookId)] : []
+    );
   }
 
   async booksStartedReading() {

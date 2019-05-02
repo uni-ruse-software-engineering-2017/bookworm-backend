@@ -11,6 +11,7 @@ import {
 } from "../../../util/test-helpers";
 import cartService from "../cart.service";
 import { ICartContent } from "../commerce.contracts";
+import paymentService from "../payment.service";
 
 const API_URL = "/api";
 const ENDPOINT = `${API_URL}/cart`;
@@ -133,7 +134,8 @@ describe("Shopping Cart resource", () => {
 
       // purchase the book
       await cartService.addItem(customer.id, book.id);
-      await cartService.checkout(customer.id);
+      const [, purchase] = await cartService.checkout(customer.id);
+      await paymentService.completeCheckout(customer.id, purchase.id);
 
       const response = await api
         .post(ENDPOINT)

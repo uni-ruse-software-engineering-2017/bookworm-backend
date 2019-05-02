@@ -8,7 +8,8 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
-  Table
+  Table,
+  Unique
 } from "sequelize-typescript";
 import ApplicationUser from "./ApplicationUser";
 import Book from "./Book";
@@ -36,6 +37,10 @@ export default class Purchase extends Model<Purchase> {
 
   @Column({ field: "payment_method", type: DataType.STRING })
   paymentMethod: string;
+
+  @Unique
+  @Column({ field: "payment_id", type: DataType.STRING })
+  paymentId: string;
 
   @Column({ field: "placed_at", type: DataType.DATE })
   placedAt: Date;

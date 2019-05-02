@@ -1,11 +1,11 @@
 import { badData, badRequest, notFound } from "boom";
 import Author from "../../models/Author";
 import Book from "../../models/Book";
-import BookPurchase, { IBookPurchase } from "../../models/BookPurchase";
 import Purchase from "../../models/Purchase";
 import ShoppingCart from "../../models/ShoppingCart";
 import userService from "../user/user.service";
 import { ICartContent, ICartLine } from "./commerce.contracts";
+import paymentService from "./payment.service";
 
 const cartLineScope = [
   {
@@ -28,7 +28,7 @@ export interface ICartService {
   checkout(userId: string): Promise<any>;
 }
 
-const toCartLine = (item: ShoppingCart) => {
+export const toCartLine = (item: ShoppingCart) => {
   return <ICartLine>{
     author: {
       id: item.book.author.id,
@@ -143,7 +143,7 @@ class CartService implements ICartService {
   }
 
   async checkout(userId: string): Promise<any> {
-    // TODO: integrate with a payment gateway API
+    const user = await userService.getById(userId);
     const cartItems = await this.getItems(userId);
 
     if (!cartItems.items.length) {
@@ -152,30 +152,24 @@ class CartService implements ICartService {
 
     // create the purchase record
     const purchase = await Purchase.create({
-      isPaid: true,
-      paidAt: new Date(),
+      isPaid: false,
+      paidAt: null,
       paymentMethod: "card",
       placedAt: new Date(),
       userId: userId,
       snapshot: cartItems.items
     });
 
-    const purchasedBooks: IBookPurchase[] = cartItems.items.map(item => {
-      const purchasedBook: IBookPurchase = {
-        bookId: item.bookId,
-        purchaseId: purchase.id,
-        snapshot: item
-      };
-      return purchasedBook;
-    });
+    const checkoutSession = await paymentService.createCheckoutSession(
+      user,
+      cartItems.items,
+      purchase.id
+    );
 
-    // 2. add books references to the purchase
-    await BookPurchase.bulkCreate(purchasedBooks);
+    purchase.paymentId = checkoutSession.id;
+    purchase.save();
 
-    // 3. clear cart items
-    await this.clear(userId);
-
-    return purchase;
+    return [checkoutSession, purchase];
   }
 }
 

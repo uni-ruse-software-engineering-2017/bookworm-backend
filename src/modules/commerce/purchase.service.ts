@@ -2,16 +2,23 @@ import { notFound } from "boom";
 import Purchase from "../../models/Purchase";
 import paginate, { IPaginationQuery } from "../../services/paginate";
 
+const sort = [["placed_at", "DESC"]];
+
 class PurchaseService {
   async getAll(query: IPaginationQuery<Purchase> = {}) {
-    return paginate(Purchase, { page: query.page, pageSize: query.pageSize });
+    return paginate(Purchase, {
+      page: query.page,
+      pageSize: query.pageSize,
+      sort
+    });
   }
 
   async getAllForUser(userId: string, query: IPaginationQuery<Purchase> = {}) {
     return paginate(Purchase, {
       page: query.page,
       pageSize: query.pageSize,
-      where: { userId }
+      where: { userId },
+      sort
     });
   }
 

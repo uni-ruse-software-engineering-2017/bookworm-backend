@@ -9,14 +9,14 @@ import {
 } from "http-status-codes";
 import "jest-extended";
 import { SuperTest, Test } from "supertest";
-import SubscriptionPlan from "../../../models/SubscriptionPlan";
-import UserSubscription from "../../../models/UserSubscription";
 import { resetDatabase } from "../../../services/database";
 import { startTestServer } from "../../../test-server";
 import {
+  customerUser,
   generateAdminToken,
   generateCustomerToken
 } from "../../../util/test-helpers";
+import userService from "../../user/user.service";
 import { ISubscriptionPlan } from "../commerce.contracts";
 import subscriptionService from "../subscription.service";
 
@@ -190,15 +190,11 @@ describe("Subscription plan resource", () => {
     it("should not allow deletion of a plan with customers already subscribed to it", async () => {
       const plans = await createTestPlans();
       const chosenPlan = plans[0];
-      const customerJwt = await generateCustomerToken(api);
+      await generateCustomerToken(api);
 
       // subscribe first
-      await api
-        .post(`${ENDPOINT}/subscribe`)
-        .set("Authorization", `Bearer ${customerJwt}`)
-        .send({
-          planId: chosenPlan.id
-        });
+      const user = await userService.getByUsername(customerUser.email);
+      await subscriptionService.subscribeCustomer(user, chosenPlan.id);
 
       const response = await api
         .delete(`${ENDPOINT}/${chosenPlan.id}`)
@@ -230,7 +226,7 @@ describe("Subscription plan resource", () => {
   });
 
   describe(`POST ${ENDPOINT}/subscribe`, () => {
-    it("should subscibe a customer to the chosen plan", async () => {
+    it("should create a payment request for the chosen plan", async () => {
       const plans = await createTestPlans();
       const chosenPlan = plans[0];
       const customerJwt = await generateCustomerToken(api);
@@ -242,9 +238,6 @@ describe("Subscription plan resource", () => {
         });
 
       expect(response.status).toEqual(OK);
-
-      const subscription: UserSubscription = response.body;
-      expect(subscription.subscriptionPlanId).toEqual(chosenPlan.id);
     });
 
     it("should not allow customers to subscribe to multiple plans", async () => {
@@ -252,12 +245,9 @@ describe("Subscription plan resource", () => {
       const chosenPlan = plans[0];
       const secondPlan = plans[1];
       const customerJwt = await generateCustomerToken(api);
-      await api
-        .post(`${ENDPOINT}/subscribe`)
-        .set("Authorization", `Bearer ${customerJwt}`)
-        .send({
-          planId: chosenPlan.id
-        });
+
+      const user = await userService.getByUsername(customerUser.email);
+      await subscriptionService.subscribeCustomer(user, chosenPlan.id);
 
       const response = await api
         .post(`${ENDPOINT}/subscribe`)
@@ -286,13 +276,8 @@ describe("Subscription plan resource", () => {
       const chosenPlan = plans[0];
       const customerJwt = await generateCustomerToken(api);
 
-      // subscribe first
-      const sub = await api
-        .post(`${ENDPOINT}/subscribe`)
-        .set("Authorization", `Bearer ${customerJwt}`)
-        .send({
-          planId: chosenPlan.id
-        });
+      const user = await userService.getByUsername(customerUser.email);
+      await subscriptionService.subscribeCustomer(user, chosenPlan.id);
 
       // unsubscribe
       const response = await api
@@ -302,9 +287,9 @@ describe("Subscription plan resource", () => {
 
       expect(response.status).toBe(OK);
 
-      const subscription = await SubscriptionPlan.findByPk(sub.body.id);
+      const userUpdated = await userService.getByUsername(customerUser.email);
 
-      expect(subscription).toBeNull();
+      expect(userUpdated.subscription).toBeNull();
     });
 
     it("should return error if user isn't subscribed", async () => {

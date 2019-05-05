@@ -1,9 +1,11 @@
+import ApplicationUser from "../../models/ApplicationUser";
 import BookPurchase, { IBookPurchase } from "../../models/BookPurchase";
 import { stripe } from "../../services/stripe";
 import { IApplicationUserData } from "../user/user.contracts";
 import cartService from "./cart.service";
-import { ICartLine } from "./commerce.contracts";
+import { ICartLine, ISubscriptionPlan } from "./commerce.contracts";
 import purchaseService from "./purchase.service";
+import subscriptionService from "./subscription.service";
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 export interface IPaymentService {
@@ -17,6 +19,16 @@ export interface IPaymentService {
     customerId: string,
     purchaseId: string
   ): Promise<IBookPurchase[]>;
+
+  createSubscriptionSession(
+    customer: IApplicationUserData,
+    subscriptionPlan: ISubscriptionPlan
+  ): Promise<any>;
+
+  completeSubscriptionPayment(
+    customer: ApplicationUser,
+    subscriptionPlanId: string
+  ): Promise<any>;
 }
 
 class PaymentService implements IPaymentService {
@@ -39,7 +51,8 @@ class PaymentService implements IPaymentService {
       payment_intent_data: {
         metadata: {
           purchaseId,
-          customerId: customer.id
+          customerId: customer.id,
+          type: "purchase"
         }
       },
       client_reference_id: customer.id,
@@ -76,6 +89,51 @@ class PaymentService implements IPaymentService {
     ]);
 
     return purchasedBooks;
+  }
+
+  async createSubscriptionSession(
+    customer: IApplicationUserData,
+    subscriptionPlan: ISubscriptionPlan
+  ): Promise<any> {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      customer_email: customer.email,
+      line_items: [
+        {
+          name: `Subscription plan: "${subscriptionPlan.name}"`,
+          description: `Read ${
+            subscriptionPlan.booksPerMonth
+          } books per month.`,
+          images: [],
+          amount: subscriptionPlan.pricePerMonth * 100, // the amount is stored in cents
+          currency: "usd",
+          quantity: 1
+        }
+      ],
+      payment_intent_data: {
+        metadata: {
+          subscriptionPlanId: subscriptionPlan.id,
+          customerId: customer.id,
+          type: "subscription"
+        }
+      },
+      client_reference_id: customer.id,
+      success_url: `${FRONTEND_URL}/payment-successful?subscription_plan_id=${
+        subscriptionPlan.id
+      }`,
+      cancel_url: `${FRONTEND_URL}/payment-failed?subscription_plan_id=${
+        subscriptionPlan.id
+      }`
+    });
+
+    return session;
+  }
+
+  completeSubscriptionPayment(
+    customer: ApplicationUser,
+    subscriptionPlanId: string
+  ): Promise<any> {
+    return subscriptionService.subscribeCustomer(customer, subscriptionPlanId);
   }
 }
 

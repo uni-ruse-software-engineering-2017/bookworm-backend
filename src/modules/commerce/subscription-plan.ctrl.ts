@@ -1,9 +1,11 @@
+import { badData } from "boom";
 import { CREATED, NO_CONTENT, OK } from "http-status-codes";
 import * as Router from "koa-router";
 import withRole from "../../middleware/with-role";
 import { IUserProfile } from "../user/user.contracts";
 import userService from "../user/user.service";
 import { ISubscriptionPlan } from "./commerce.contracts";
+import paymentService from "./payment.service";
 import subscriptionService from "./subscription.service";
 
 const SubscriptionPlanController = new Router();
@@ -67,9 +69,15 @@ SubscriptionPlanController.post(
   async ctx => {
     const profile = ctx.state.session as IUserProfile;
     const user = await userService.getById(profile.id);
-    const plan: { planId: string } = ctx.request.body;
 
-    ctx.body = await subscriptionService.subscribeCustomer(user, plan.planId);
+    if (user.subscription) {
+      throw badData("You are already subscribed to a plan.");
+    }
+
+    const { planId } = ctx.request.body;
+    const plan = await subscriptionService.getPlanById(planId);
+
+    ctx.body = await paymentService.createSubscriptionSession(user, plan);
 
     return ctx;
   }

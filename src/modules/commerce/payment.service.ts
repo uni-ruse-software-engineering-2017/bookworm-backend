@@ -44,7 +44,7 @@ class PaymentService implements IPaymentService {
         name: i.title,
         description: i.author.name,
         images: [i.coverImage],
-        amount: i.price * 100, // the amount is stored in cents
+        amount: parseInt((i.price * 100).toFixed(2)), // the amount is stored in cents
         currency: "usd",
         quantity: 1
       })),

@@ -6,6 +6,9 @@ export const errorHandler: Middleware = async (ctx, next) => {
   try {
     await next();
   } catch (err) {
+    if (process.env.NODE_ENV !== "test") {
+      console.error(err);
+    }
     // catch invalid JSON body requests
     if (err instanceof SyntaxError) {
       const badRequestError = badRequest();

@@ -44,7 +44,7 @@ class PaymentService implements IPaymentService {
         name: i.title,
         description: i.author.name,
         images: [i.coverImage],
-        amount: parseInt((i.price * 100).toFixed(2)), // the amount is stored in cents
+        amount: priceToCents(i.price), // the amount is stored in cents
         currency: "usd",
         quantity: 1
       })),
@@ -105,7 +105,7 @@ class PaymentService implements IPaymentService {
             subscriptionPlan.booksPerMonth
           } books per month.`,
           images: [],
-          amount: subscriptionPlan.pricePerMonth * 100, // the amount is stored in cents
+          amount: priceToCents(subscriptionPlan.pricePerMonth), // the amount is stored in cents
           currency: "usd",
           quantity: 1
         }
@@ -135,6 +135,10 @@ class PaymentService implements IPaymentService {
   ): Promise<any> {
     return subscriptionService.subscribeCustomer(customer, subscriptionPlanId);
   }
+}
+
+function priceToCents(price: number) {
+  return parseInt((price * 100).toFixed(2));
 }
 
 export default new PaymentService();

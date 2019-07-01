@@ -17,7 +17,8 @@ export interface IPaginationQuery<T> {
   where?: WhereOptions;
   scope?: string;
   include?: any[];
-  sort?: any;
+  sortColumn?: string;
+  sortOrder?: "ASC" | "DESC";
 }
 
 export default async function paginate<T extends Model<T>>(
@@ -27,14 +28,22 @@ export default async function paginate<T extends Model<T>>(
   pagination.pageSize = pagination.pageSize || 25;
   pagination.page = pagination.page > 0 ? pagination.page : 1;
 
-  const { pageSize, page, where, scope, include, sort } = pagination;
+  const {
+    pageSize,
+    page,
+    where,
+    scope,
+    include,
+    sortColumn,
+    sortOrder
+  } = pagination;
 
   const filter = {
     where: where || {},
     limit: pageSize,
     offset: (page - 1) * pageSize,
     include: include || [],
-    order: sort || undefined
+    order: sortColumn ? [[sortColumn, sortOrder || "DESC"]] : undefined
   };
 
   // when 'pageSize' is -1, return all records in the database

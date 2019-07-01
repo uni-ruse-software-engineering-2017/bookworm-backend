@@ -11,6 +11,8 @@ import { IBook, IBookListItem } from "./catalog.contracts";
 class BookService {
   async getAll(query: IPaginationQuery<Book>) {
     const books: IPaginatedResource<IBookListItem> = await paginate(Book, {
+      sortColumn: "created_at",
+      sortOrder: "DESC",
       ...query,
       scope: "listItem"
     });
@@ -19,6 +21,8 @@ class BookService {
 
   async getAllByCategoryId(categoryId: string, query: IPaginationQuery<Book>) {
     const books: IPaginatedResource<IBookListItem> = await paginate(Book, {
+      sortColumn: "created_at",
+      sortOrder: "DESC",
       ...query,
       where: { ...query.where, categoryId: categoryId },
       scope: "listItem"
@@ -43,7 +47,7 @@ class BookService {
   }
 
   async create(bookData: Partial<IBook>) {
-    const bookModel = Book.build(bookData);
+    const bookModel = Book.build({ ...bookData, id: undefined });
 
     try {
       await bookModel.validate();
@@ -104,7 +108,8 @@ class BookService {
     const latestBooks = await paginate(Book, {
       page: 1,
       pageSize: 10,
-      sort: [["created_at", "DESC"]]
+      sortColumn: "created_at",
+      sortOrder: "DESC"
     });
 
     return latestBooks;

@@ -12,13 +12,18 @@ const AuthorController = new Router();
 
 AuthorController.get("/", withPagination, async ctx => {
   const authorNameQuery = ctx.query.q || "";
+  const sort = {
+    sortColumn: "name",
+    sortOrder: "ASC"
+  };
 
   const query: IPaginationQuery<Author> = authorNameQuery
     ? {
+        ...sort,
         ...ctx.state.pagination,
         where: searchByColumn<Author>("name", authorNameQuery)
       }
-    : ctx.state.pagination;
+    : { ...sort, ...ctx.state.pagination };
 
   const authors = await authorService.getAll(query);
   ctx.body = authors;

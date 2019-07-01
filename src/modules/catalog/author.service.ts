@@ -11,9 +11,10 @@ class AuthorService {
 
   async create(authorData: IAuthor) {
     try {
-      const author = await Author.create(authorData);
+      const author = await Author.create({ ...authorData, id: undefined });
       return author;
     } catch (error) {
+      console.error(error);
       if (error.name === "SequelizeUniqueConstraintError") {
         throw badData(`Author with name ${authorData.name} already exists.`);
       } else {
